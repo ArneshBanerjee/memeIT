@@ -1,4 +1,4 @@
-MemeIT's first desktop preview: a Rust-powered picker for popular internet memes on macOS, Windows, and Linux.
+MemeIT desktop preview: a Rust-powered picker for popular internet memes on macOS, Windows, and Linux.
 
 Open the picker with **Cmd/Ctrl + Shift + M**, describe the reaction or search a familiar format, then copy it back into your conversation. The default catalog loads popular image formats from **Imgflip and Memegen** with descriptive metadata for recognizable reactions. Your own imports and favorites are also supported. MemeIT never reads your conversation or sends a message for you.
 
@@ -25,7 +25,7 @@ These early builds are **not a signed, notarized production release**. macOS bui
 
 Global shortcuts can be unavailable in some Linux Wayland sessions. Open the application or tray menu as a fallback. Image and GIF file paste support depends on the chat application; saving and attaching permitted files is the fallback. Mobile platforms are not included.
 
-Classic-catalog search matches names and descriptive metadata. Optional broad search uses the selected provider's service. This preview does not claim unrestricted semantic understanding or universal internet coverage. Third-party meme artwork remains subject to its owners' rights and source terms; the software licence does not relicense it.
+Classic-catalog search combines a bundled local sentence model with names, descriptions, slang, and typo tolerance. No AI API key is needed; search queries in Popular memes stay on your device. Cooked Dog and other verified reactions missing from popular feeds are included. Optional broad search uses the selected provider's service. This preview does not claim unrestricted semantic understanding or universal internet coverage. Third-party meme artwork remains subject to its owners' rights and source terms; the software licence does not relicense it.
 
 Please report compatibility problems with the OS version and receiving chat app in [GitHub Issues](https://github.com/ArneshBanerjee/memeIT/issues).
 

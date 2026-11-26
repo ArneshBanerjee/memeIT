@@ -14,7 +14,7 @@ Use Tauri 2 with Rust for search, persistence, import validation, image decoding
 
 Keep one serialized clipboard owner alive. Copy PNG/JPEG/WebP as image pixels and GIFs as original-file references. Always offer Save file. Opening the picker and copying should not require accessibility permissions or simulated keystrokes. [arboard clipboard formats and file lists](https://docs.rs/arboard/latest/arboard/struct.Set.html)
 
-The first search implementation combines descriptions, titles, tags, phrases, and reaction aliases locally. It is useful for a captioned collection, but is not a substitute for general semantic inference. A follow-up should compare hybrid lexical/embedding ranking using a real evaluation set before introducing model downloads. MiniLM offers small English sentence embeddings; CLIP/OCR can assist imports but do not automatically understand a meme's social intent. [MiniLM model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), [FastEmbed Rust](https://github.com/Anush008/fastembed-rs)
+The first lexical implementation missed both a catalog entry and natural descriptions of Cooked Dog. Version 0.1.1 adds a pinned MiniLM sentence encoder executed on CPU through Candle in Rust. The model is bundled at build time, with a precomputed description index, so ordinary searches require neither an AI API key nor a first-run model download. Ranking combines cosine similarity, exact names, word forms, bounded typo tolerance, and explicit exclusions. The model matches text metadata rather than performing image recognition; CLIP/OCR can assist imports but do not automatically understand a meme's social intent. [MiniLM model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), [Candle](https://github.com/huggingface/candle)
 
 ## Catalog strategy
 
@@ -35,7 +35,7 @@ A consumer launch needs macOS Developer ID signing/notarization and Windows publ
 ## Follow-up gates
 
 1. Verify static image paste and original GIF animation across target chat apps on each OS; record actual outcomes in the compatibility checklist.
-2. Evaluate descriptive retrieval on at least 100 realistic prompts and imported memes. Compare lexical baseline against MiniLM hybrid search; include named memes, vague intent, negation, misspellings, and multilingual requests.
+2. Evaluate descriptive retrieval on at least 100 realistic prompts and imported memes. Continue evaluating MiniLM hybrid search against the lexical baseline; include named memes, vague intent, negation, misspellings, and multilingual requests.
 3. Obtain approved online-provider access and clarify file-transfer handling. Do not silently bypass quota or storage rules.
 4. Provision release signing and notarization credentials before calling the product a frictionless consumer release.
 5. Add local deletion/library management, cache budgets, and migration tests as collections grow; keep search latency observable without collecting private queries.

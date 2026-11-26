@@ -4,7 +4,7 @@
 
 A small desktop picker for real internet memes for **Windows, macOS, and Linux**. Press `Cmd/Ctrl + Shift + M`, describe a reaction, choose a GIF or image, and press Enter to copy it. Paste into your conversation when you're ready.
 
-MemeIT is an early **0.1.0 preview**, with a Rust application core and a lightweight TypeScript interface inside Tauri 2. It is not an Electron app. It does not read chats, monitor clipboard history, inject keystrokes, or send messages for you.
+MemeIT is an early **0.1.1 preview**, with a Rust application core and a lightweight TypeScript interface inside Tauri 2. It is not an Electron app. It does not read chats, monitor clipboard history, inject keystrokes, or send messages for you.
 
 ## Download
 
@@ -19,19 +19,21 @@ Initial builds are not notarized by Apple or signed with a Windows publisher cer
 - Optional KLIPY GIF/static-meme search and Imgflip full-catalog search with your provider key.
 - Add your own text to supported static templates with an on-device live editor, draggable text layers, and PNG copy/save.
 - Native import of your own static PNG, JPEG, WebP, and animated GIF files into a private local library.
-- Description search using meme names, visual descriptions, tags, phrase matching, and reaction synonyms in Rust.
+- Description search combining a local sentence model with meme names, visual descriptions, slang, and typo-tolerant matching in Rust.
 - Save supported online memes to a local library, with favorites and recent reactions.
 - Image clipboard copying for still images; original-file clipboard copying for GIFs.
 - Native Save file fallback when a chat does not accept pasted files.
 - Keyboard navigation, editable descriptions, and a configurable shortcut.
 
-**Search is an explicit baseline:** popular-format search uses authored descriptions and intent aliases, not a downloaded language model or automatic image recognition. Provider search queries go directly to that provider. Add useful descriptions to imported memes. For example, describe a reaction as “pretending everything is fine while work falls apart” and add tags such as `chaos`, `denial`, and `work`.
+**Describe what you remember:** the desktop app combines a bundled MiniLM sentence model with exact names, descriptive metadata, word forms, and typo tolerance. Queries such as “dog cooked,” “god eye closed,” or “brown dog accepting its fate in the sunlight” find Cooked Dog. Matching runs on your device without an AI account or search API key. The model compares text descriptions; it does not recognize imported image contents automatically, so add descriptions to your own files. Search can retrieve only entries present in the selected catalog. Optional provider tabs use that provider’s search.
+
+The browser preview and imported local library use a lighter descriptive matcher; Popular memes in the installed desktop app includes the language model.
 
 ## Internet catalog coverage
 
 | Source | Available without a key? | Coverage and behavior |
 | --- | --- | --- |
-| Popular formats: Imgflip + Memegen | Yes | Live popular/classic formats, not every captioned meme variant. Checked feeds returned 100 and 209 entries; overlaps and availability vary. |
+| Popular formats: Imgflip + Memegen | Yes | Live popular/classic formats plus a curated set of verified internet reactions, not every captioned meme variant. Feed contents and availability vary. |
 | KLIPY GIFs / memes | No | Broad live reaction search with a testing/production app key. Separate provider results retain provider order. |
 | Imgflip full catalog | No | Advertised 1M+ template catalog; requires API Premium and a bearer key. |
 | Your library | Yes | Saved supported memes and imported files, available offline. |
@@ -67,6 +69,7 @@ Install [Tauri 2 prerequisites](https://v2.tauri.app/start/prerequisites/), a cu
 
 ```sh
 npm ci
+npm run model:prepare
 npm run tauri dev
 ```
 
@@ -84,6 +87,8 @@ cargo fmt --manifest-path src-tauri/Cargo.toml --check
 cargo test --manifest-path src-tauri/Cargo.toml
 npm run tauri build
 ```
+
+Release packaging downloads a pinned, checksum-verified MiniLM model into ignored build resources and bundles it with the app. No model download is required after installation. See the model notices in `models/minilm/` after preparation.
 
 The app's per-user data directory contains the library metadata and imported media. Imported/saved files stay local. Internet catalogs and previews contact their named providers. Keep backups of your originals. Media imports are bounded and validated; native file pickers choose paths rather than unrestricted webview filesystem access.
 

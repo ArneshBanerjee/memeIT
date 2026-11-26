@@ -2,6 +2,7 @@ import { invoke, isTauri } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import "./style.css";
 import { openTemplateEditor } from "./editor";
+import { searchPreview } from "./preview-search";
 
 type Kind = "png" | "gif" | "jpeg" | "webp";
 type Filter = "all" | "favorites" | "recent" | "gif" | "image";
@@ -357,6 +358,21 @@ async function previewCatalog(query: string): Promise<OnlineResponse> {
           isTemplate: true,
         });
       }
+    try {
+      const response = await fetch("/public-supplemental.json");
+      if (response.ok) {
+        const supplements: OnlineItem[] = await response.json();
+        const ids = new Set(browserCatalog.map((item) => item.id));
+        for (const item of supplements) {
+          if (!ids.has(item.id)) {
+            browserCatalog.push(item);
+            ids.add(item.id);
+          }
+        }
+      }
+    } catch {
+      /* The live catalogs remain usable. */
+    }
     if (!browserCatalog.length) {
       browserCatalog = null;
       throw new Error(
@@ -364,47 +380,7 @@ async function previewCatalog(query: string): Promise<OnlineResponse> {
       );
     }
   }
-  const tokens = query
-    .toLowerCase()
-    .split(/[^\p{L}\p{N}]+/u)
-    .filter(
-      (t) =>
-        t.length > 1 &&
-        ![
-          "the",
-          "that",
-          "with",
-          "for",
-          "when",
-          "and",
-          "is",
-          "am",
-          "are",
-          "me",
-          "it",
-          "this",
-          "to",
-          "of",
-          "in",
-        ].includes(t),
-    );
-  const items = tokens.length
-    ? browserCatalog
-        .map((item) => ({
-          item,
-          score: tokens.reduce(
-            (score, t) =>
-              score +
-              (item.title.toLowerCase().includes(t) ? 5 : 0) +
-              (item.tags.join(" ").toLowerCase().includes(t) ? 3 : 0) +
-              (item.description.toLowerCase().includes(t) ? 1 : 0),
-            0,
-          ),
-        }))
-        .filter((x) => x.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .map((x) => x.item)
-    : browserCatalog;
+  const items = searchPreview(browserCatalog, query);
   return {
     items,
     nextPage: null,
@@ -631,7 +607,7 @@ function edit(item: Meme) {
 }
 function settings() {
   openDialog(
-    `<div class="eyebrow">SMALL APP. BIG REACTION.</div><h2>Your MemeIT.</h2><p>No MemeIT account, chat access, or clipboard history. Internet searches go directly to the selected provider.</p><button id="provider-settings" class="secondary">Connect online catalogs</button><form id="settings-form"><label>Open picker shortcut<input name="shortcut" required value="${escape(shortcut)}" aria-describedby="shortcut-help"></label><small id="shortcut-help">Example: CommandOrControl+Shift+M. On Wayland, use your desktop’s shortcut settings to launch MemeIT.</small><label class="checkbox"><input name="hideAfter" type="checkbox" ${hideAfter ? "checked" : ""}> Hide after copying</label><button class="primary" type="submit">Save settings</button></form><div class="settings-notes"><strong>Images vs. GIFs</strong><p>Images copy as pixels. GIFs copy as original files to keep animation. If your chat doesn’t accept a pasted file, use Save file and attach it.</p><strong>Description search</strong><p>Local keyword and phrase matching with reaction synonyms. Add a useful description to imported memes; this version doesn’t recognize their contents automatically.</p>${diagnostics.length ? `<strong>System notes</strong><ul>${diagnostics.map((d) => `<li>${escape(d)}</li>`).join("")}</ul>` : ""}<p class="muted">MemeIT 0.1.0 · Preview · MIT software · Media belongs to its sources</p></div>`,
+    `<div class="eyebrow">SMALL APP. BIG REACTION.</div><h2>Your MemeIT.</h2><p>No MemeIT account, chat access, or clipboard history. Internet searches go directly to the selected provider.</p><button id="provider-settings" class="secondary">Connect online catalogs</button><form id="settings-form"><label>Open picker shortcut<input name="shortcut" required value="${escape(shortcut)}" aria-describedby="shortcut-help"></label><small id="shortcut-help">Example: CommandOrControl+Shift+M. On Wayland, use your desktop’s shortcut settings to launch MemeIT.</small><label class="checkbox"><input name="hideAfter" type="checkbox" ${hideAfter ? "checked" : ""}> Hide after copying</label><button class="primary" type="submit">Save settings</button></form><div class="settings-notes"><strong>Images vs. GIFs</strong><p>Images copy as pixels. GIFs copy as original files to keep animation. If your chat doesn’t accept a pasted file, use Save file and attach it.</p><strong>Description search</strong><p>Popular memes combines an on-device language model with descriptions, names, and typo tolerance. Your library matches names, descriptions, and tags. Add descriptions to imported memes; their contents aren’t recognized automatically.</p>${diagnostics.length ? `<strong>System notes</strong><ul>${diagnostics.map((d) => `<li>${escape(d)}</li>`).join("")}</ul>` : ""}<p class="muted">MemeIT 0.1.1 · Preview · MIT software · Media belongs to its sources</p></div>`,
   );
   dialog.querySelector("#provider-settings")!.addEventListener("click", () => {
     dialog.close();

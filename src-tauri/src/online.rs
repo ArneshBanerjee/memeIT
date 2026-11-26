@@ -1,5 +1,6 @@
 //! Internet providers. URLs originate in validated provider responses, never IPC arguments.
 use crate::library::{self, MemeItem, Result, MAX_FILE_BYTES};
+use crate::semantic::SemanticEngine;
 use reqwest::{
     blocking::{Client, Response},
     redirect::Policy,
@@ -137,6 +138,8 @@ struct Annotation {
 pub struct OnlineState {
     client: Result<Client>,
     directory: PathBuf,
+    assets_dir: PathBuf,
+    semantic: Mutex<Option<Result<SemanticEngine>>>,
     keys: Mutex<Keys>,
     results: Mutex<HashMap<String, OnlineItem>>,
     catalog: Mutex<Option<Catalog>>,
@@ -241,6 +244,33 @@ fn kind_from_url(url: &str) -> String {
         "jpeg"
     }
     .into()
+}
+
+/// Verified existing provider templates that are absent from changing public feeds.
+/// This source is shared with the browser preview and only contains remote references.
+fn with_supplemental(mut items: Vec<OnlineItem>) -> Result<Vec<OnlineItem>> {
+    let supplemental: Vec<OnlineItem> =
+        serde_json::from_str(include_str!("../../assets/public-supplemental.json"))
+            .map_err(|_| "The bundled supplemental catalog is invalid. Please update MemeIT.")?;
+    for item in supplemental {
+        if item.provider != "imgflip"
+            || !item.is_template
+            || !item.id.starts_with("imgflip:")
+            || item.title.is_empty()
+            || item.title.chars().count() > 200
+            || item.description.chars().count() > 2000
+            || item.tags.len() > 50
+        {
+            return Err("The bundled supplemental catalog contains an invalid entry.".into());
+        }
+        checked_media(&item.media_url, &item.provider)?;
+        checked_media(&item.preview_url, &item.provider)?;
+        checked_source(&item.source_url)?;
+        if !items.iter().any(|existing| existing.id == item.id) {
+            items.push(item);
+        }
+    }
+    Ok(items)
 }
 
 fn bounded_body(mut response: Response, limit: u64) -> Result<Vec<u8>> {
@@ -420,7 +450,7 @@ pub fn parse_klipy(value: &Value, provider: &str) -> Result<(Vec<OnlineItem>, bo
 }
 
 impl OnlineState {
-    pub fn new(directory: PathBuf) -> Self {
+    pub fn new(directory: PathBuf, assets_dir: PathBuf) -> Self {
         let client = Client::builder()
             .https_only(true)
             .timeout(Duration::from_secs(20))
@@ -461,6 +491,8 @@ impl OnlineState {
         Self {
             client,
             directory,
+            assets_dir,
+            semantic: Mutex::new(None),
             keys: Mutex::new(Keys {
                 imgflip: String::new(),
                 klipy: option_env!("MEMEIT_PUBLIC_KLIPY_APP_KEY")
@@ -477,6 +509,25 @@ impl OnlineState {
 
     fn client(&self) -> Result<&Client> {
         self.client.as_ref().map_err(Clone::clone)
+    }
+
+    /// Called by the search command's blocking worker, never during UI setup.
+    fn semantic_scores(&self, query: &str, items: &[MemeItem]) -> Result<HashMap<String, f32>> {
+        let mut engine = self
+            .semantic
+            .lock()
+            .map_err(|_| "Semantic search is unavailable.")?;
+        let engine = engine.get_or_insert_with(|| {
+            let root = self
+                .assets_dir
+                .parent()
+                .ok_or("Model resource directory is unavailable.")?;
+            SemanticEngine::load(
+                &root.join("models/minilm"),
+                &self.assets_dir.join("semantic-index.json"),
+            )
+        });
+        engine.as_ref().map_err(Clone::clone)?.scores(query, items)
     }
 
     pub fn config(&self) -> Result<ProviderConfig> {
@@ -539,7 +590,10 @@ impl OnlineState {
             .clone();
         if let Some(catalog) = &cached {
             if catalog.is_fresh(library::now()) {
-                return Ok((catalog.items.clone(), catalog.warning.clone()));
+                return Ok((
+                    with_supplemental(catalog.items.clone())?,
+                    catalog.warning.clone(),
+                ));
             }
         }
         let client = self.client()?;
@@ -565,15 +619,13 @@ impl OnlineState {
                     .unwrap_or_else(|_| Err("Memegen request failed.".into())),
             )
         });
-        let mut catalog = merge_catalogs(cached.as_ref(), imgflip, memegen, library::now())?;
-        // Observed public Imgflip classic missing from the changing top-100 list.
-        if !catalog
-            .items
-            .iter()
-            .any(|item| item.id == "imgflip:80996545")
-        {
-            catalog.items.push(OnlineItem { id: "imgflip:80996545".into(), title: "Math Lady / Confused Lady".into(), description: "A confused woman works through equations. Trying to understand something complicated.".into(), tags: vec!["confused".into(), "math".into()], kind: "jpeg".into(), preview_url: "https://i.imgflip.com/1c81c1.jpg".into(), media_url: "https://i.imgflip.com/1c81c1.jpg".into(), source_url: "https://imgflip.com/memetemplate/80996545/Math-ladyConfused-lady".into(), provider: "imgflip".into(), is_template: true });
-        }
+        let catalog = merge_catalogs(cached.as_ref(), imgflip, memegen, library::now())
+            .unwrap_or_else(|warning| Catalog {
+                fetched_at: library::now(),
+                items: vec![],
+                partial: true,
+                warning: format!("{warning} Showing only bundled supplemental format references."),
+            });
         if let Ok(bytes) = serde_json::to_vec(&catalog) {
             if let Ok(mut file) = tempfile::NamedTempFile::new_in(&self.directory) {
                 if file.write_all(&bytes).is_ok() {
@@ -581,7 +633,10 @@ impl OnlineState {
                 }
             }
         }
-        let response = (catalog.items.clone(), catalog.warning.clone());
+        let response = (
+            with_supplemental(catalog.items.clone())?,
+            catalog.warning.clone(),
+        );
         *self.catalog.lock().map_err(|_| "Catalog is unavailable.")? = Some(catalog);
         Ok(response)
     }
@@ -613,7 +668,7 @@ impl OnlineState {
         }
         match provider {
             "popular" => {
-                let (mut items, warning) = self.popular_catalog()?;
+                let (mut items, mut warning) = self.popular_catalog()?;
                 for item in &mut items {
                     self.annotate(item);
                 }
@@ -632,7 +687,13 @@ impl OnlineState {
                             last_used: None,
                         })
                         .collect();
-                    let ranked = library::search(&library, query, "all")?;
+                    let ranked = match self.semantic_scores(query, &library) {
+                        Ok(scores) => library::hybrid_search(&library, query, "all", &scores)?,
+                        Err(_) => {
+                            warning.push_str(" Semantic search is unavailable; showing keyword matches. Reinstall the complete app to restore the bundled model.");
+                            library::search(&library, query, "all")?
+                        }
+                    };
                     let lookup: HashMap<_, _> = items
                         .into_iter()
                         .map(|item| (item.id.clone(), item))
@@ -646,7 +707,7 @@ impl OnlineState {
                 let next = (start + PAGE_SIZE < items.len()).then_some(page + 1);
                 let items: Vec<_> = items.into_iter().skip(start).take(PAGE_SIZE).collect();
                 self.remember(&items)?;
-                Ok(SearchResponse { items, next_page: next, notice: format!("{count} real meme formats from public Imgflip and Memegen catalogs. These are templates, not all internet memes or captioned posts. {warning}").trim().into(), configured: true })
+                Ok(SearchResponse { items, next_page: next, notice: format!("{count} real meme formats from public Imgflip and Memegen catalogs plus verified supplemental templates. These are templates, not all internet memes or captioned posts. {warning}").trim().into(), configured: true })
             }
             "imgflip" => {
                 let key = self
@@ -809,6 +870,66 @@ mod tests {
         }
     }
 
+    fn assets_dir() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../assets")
+    }
+
+    #[test]
+    fn supplemental_formats_are_valid_unique_and_merge_into_existing_cache() {
+        let supplemental = with_supplemental(vec![]).unwrap();
+        let ids: std::collections::HashSet<_> = supplemental.iter().map(|item| &item.id).collect();
+        assert_eq!(ids.len(), supplemental.len());
+        assert!(supplemental
+            .iter()
+            .any(|item| item.id == "imgflip:574931918"));
+        for item in &supplemental {
+            let suffix = item.id.strip_prefix("imgflip:").unwrap();
+            assert!(suffix.chars().all(|c| c.is_ascii_digit()));
+            assert!(item
+                .source_url
+                .contains(&format!("/memetemplate/{suffix}/")));
+            assert_eq!(item.kind, kind_from_url(&item.media_url));
+        }
+        assert_eq!(
+            with_supplemental(supplemental.clone()).unwrap().len(),
+            supplemental.len()
+        );
+
+        let directory = tempfile::tempdir().unwrap();
+        let state = OnlineState::new(directory.path().to_path_buf(), assets_dir());
+        *state.catalog.lock().unwrap() = Some(Catalog {
+            fetched_at: library::now(),
+            items: vec![supplemental[0].clone()],
+            warning: "Previous provider warning.".into(),
+            partial: true,
+        });
+        // A still-fresh disk/memory cache must gain newly bundled formats immediately.
+        let (merged, warning) = state.popular_catalog().unwrap();
+        assert_eq!(merged.len(), supplemental.len());
+        assert_eq!(warning, "Previous provider warning.");
+    }
+
+    #[test]
+    fn missing_semantic_model_reports_keyword_fallback_without_losing_cooked_dog() {
+        let directory = tempfile::tempdir().unwrap();
+        let state = OnlineState::new(
+            directory.path().to_path_buf(),
+            directory.path().join("assets"),
+        );
+        *state.catalog.lock().unwrap() = Some(Catalog {
+            fetched_at: library::now(),
+            items: vec![],
+            warning: String::new(),
+            partial: false,
+        });
+        let result = state
+            .search("brown dog closing his eyes at sunset", "popular", 1)
+            .unwrap();
+        assert_eq!(result.items[0].id, "imgflip:574931918");
+        assert!(result.notice.contains("Semantic search is unavailable"));
+        assert!(result.notice.contains("keyword matches"));
+    }
+
     #[test]
     fn partial_refresh_retains_failed_source_and_warning_across_cache_reads() {
         let previous = Catalog {
@@ -955,7 +1076,7 @@ mod tests {
     #[ignore = "Explicit network smoke test against public provider APIs"]
     fn live_public_catalogs_and_original_media_download() {
         let directory = tempfile::tempdir().unwrap();
-        let state = OnlineState::new(directory.path().to_path_buf());
+        let state = OnlineState::new(directory.path().to_path_buf(), assets_dir());
         let (catalog, warning) = state.popular_catalog().unwrap();
         assert!(warning.is_empty(), "{warning}");
         assert!(catalog.iter().any(|item| item.provider == "imgflip"));
@@ -964,6 +1085,19 @@ mod tests {
         let first = state.search("", "popular", 1).unwrap();
         assert_eq!(first.items.len(), PAGE_SIZE);
         assert_eq!(first.next_page, Some(2));
+        for query in ["dog cooked", "god eye closed"] {
+            let found = state.search(query, "popular", 1).unwrap();
+            assert!(
+                !found.notice.contains("Semantic search is unavailable"),
+                "{}",
+                found.notice
+            );
+            assert_eq!(
+                found.items.first().map(|item| item.id.as_str()),
+                Some("imgflip:574931918"),
+                "{query}"
+            );
+        }
         let sample = first
             .items
             .iter()
@@ -979,6 +1113,21 @@ mod tests {
             .unwrap();
         let file = state.download(memegen).unwrap();
         assert_eq!(library::inspect_media(file.path()).unwrap(), "jpeg");
+        let cooked_dog = catalog
+            .iter()
+            .find(|item| item.id == "imgflip:574931918")
+            .unwrap();
+        let file = state.download(cooked_dog).unwrap();
+        assert_eq!(library::inspect_media(file.path()).unwrap(), "png");
+        assert_eq!(
+            image::ImageReader::open(file.path())
+                .unwrap()
+                .with_guessed_format()
+                .unwrap()
+                .into_dimensions()
+                .unwrap(),
+            (1024, 768)
+        );
         println!(
             "Verified {} real catalog entries and original images from both public providers.",
             catalog.len()

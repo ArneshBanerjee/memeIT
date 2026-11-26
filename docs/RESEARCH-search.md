@@ -16,17 +16,18 @@ templates; they are not a feed of every captioned post.
 
 Search their names, visual descriptions, intent descriptions, and tags in Rust.
 [`../assets/internet-metadata.json`](../assets/internet-metadata.json) contains
-311 original annotations keyed by exact `{source, id}`: the 309 observed provider
-entries and two independently verified Imgflip classics. Each record contains
+319 original annotations keyed by exact `{source, id}`, covering the observed
+provider catalogs and verified supplemental classics and newer formats. Each record contains
 `source`, `id`, `description`, and `tags`; it contains no copied artwork. Visual
 queries such as "dog in a burning room" and "man distracted by another woman"
 can match without knowing the meme's name.
 
-The matching engine uses token normalization, weighted phrase and keyword
-matches, reaction synonyms, and limited handling of negated emotion words.
-This is **description search**, not general AI vision or embedding search. It
-cannot infer the contents of an arbitrary imported image or understand every
-possible sentence. A local imported library remains available separately.
+The desktop popular catalog now uses **hybrid semantic description search**:
+local MiniLM sentence embeddings combined with weighted lexical matches, English
+stemming, restrained typo tolerance, and limited emotion-negation handling.
+This compares descriptions; it does not read image pixels or understand every
+possible sentence. Imported items and the browser preview use lexical search.
+A missing or invalid model triggers an explicit keyword-search fallback.
 
 Optional authenticated providers expand coverage: **Imgflip API Premium**
 searches its full template database; **KLIPY** searches GIFs and captioned memes
@@ -158,32 +159,41 @@ Check whether the desired result appears near the top and whether empty states
 are honest. Do not advertise universal natural-language understanding from a
 small hand-built synonym table.
 
-### Next step: local hybrid semantic search
-
-SQLite FTS5 offers Unicode tokenization, BM25 weighting, English stemming, and
-trigram substring search. It is a sensible exact-match component as the library
-grows. A text embedding component can complement it for paraphrased situations.
-Use a documented hybrid score or reciprocal-rank fusion; evaluate actual meme
-queries before selecting weights.
-
-Source: [SQLite FTS5](https://www.sqlite.org/fts5.html).
+### Implemented local hybrid semantic search
 
 `sentence-transformers/all-MiniLM-L6-v2` is Apache-2.0, English-focused, maps text
-to 384-dimensional vectors, and truncates beyond 256 wordpieces. It is suitable
-to evaluate for short local descriptions. It does not read image pixels.
-Multilingual needs require testing a multilingual model rather than assuming
-English embeddings understand every language.
+to 384-dimensional vectors, and truncates beyond 256 wordpieces. It does not
+read image pixels. Multilingual needs require evaluating a different model.
 
-Source: [MiniLM model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
+The desktop uses CPU-only Candle with a pinned model revision
+`1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. The build script downloads the
+90,868,376-byte safetensors weights plus tokenizer/configuration and verifies
+exact sizes and SHA-256 hashes. It bundles the upstream model card and Apache
+license. No model download or inference service is needed after installation.
 
-Rust's FastEmbed supports local text embeddings, multilingual models, and
-compatible CLIP image/text encoders. It uses ONNX Runtime through `ort`; this
-adds native runtime and model packaging work. A Rust application can use such
-dependencies, but should not claim its entire dependency stack is pure Rust.
-Pin the model revision and checksum, show download progress, handle offline
-startup, and keep the picker responsive while background indexing runs.
+A committed index (about 4.46 MB for the initial 319 annotations) contains
+normalized 384-dimensional embeddings for whole descriptions and descriptive
+sentences. Separating scene and intent passages avoids diluting one with the
+other; a conservative blend of best-passage and whole-description similarity
+feeds the hybrid ranker. Index entries include description hashes; stale vectors
+are skipped after metadata changes. The model loads lazily on a worker thread,
+then embeds only the user's query. Single unpadded sequences use mean pooling
+and L2 normalization, following the model card. Descriptions and queries never
+leave the machine for this operation. This does not change the separate network
+requests needed to fetch internet catalog metadata and media.
 
-Source: [FastEmbed Rust repository](https://github.com/Anush008/fastembed-rs).
+Ranking blends cosine similarity with lexical evidence. Exact names remain
+strong; explicit emotion exclusions cannot be overridden by embedding scores.
+English stemming handles inflections. Bounded edit distance applies to unknown
+words rather than replacing known short words; a short reversed word receives
+only a small bonus when two other description terms support the result.
+Similarity is a retrieval score, not calibrated confidence or proof that a
+result matches. New unannotated formats and imports retain lexical retrieval.
+
+Sources: [MiniLM model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2),
+[Candle BERT implementation](https://github.com/huggingface/candle/tree/main/candle-examples/examples/bert),
+[Candle runtime](https://github.com/huggingface/candle),
+[Snowball stemming algorithms](https://snowballstem.org/algorithms/).
 
 For automatic import labeling, OCR and image embeddings can help with visible
 text and scene similarity. They do not reliably recover sarcasm, the cultural
@@ -217,7 +227,7 @@ ranking should be distinct components so policies can be enforced correctly.
   and provider-content terms separate.
 
 The application icon's CC0 dedication applies to the icon, not to internet
-meme images. Future embedding and image-recognition capabilities described in
-this document should not be inferred to be shipped. Credential-gated providers
+meme images. Automatic image recognition and multilingual embedding support
+remain future work; the shipped English text model matches curated descriptions. Credential-gated providers
 must remain clearly marked as requiring configuration; compiled support is not
 evidence that a provider-approved production key has been obtained.

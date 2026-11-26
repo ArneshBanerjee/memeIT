@@ -1301,7 +1301,14 @@
     "source": "imgflip",
     "id": "14371066",
     "description": "Yoda offers an observation in his recognizable style. Wise advice, a knowing reaction, an unusual word order, or commenting on a lesson learned.",
-    "tags": ["yoda", "star wars", "wise", "advice", "lesson", "knowledge"]
+    "tags": [
+      "yoda",
+      "star wars",
+      "wise",
+      "advice",
+      "lesson",
+      "knowledge"
+    ]
   },
   {
     "source": "imgflip",
@@ -1416,16 +1423,20 @@
   {
     "source": "imgflip",
     "id": "80996545",
-    "description": "A woman stares in confusion while mathematical equations appear around her. Mental calculations, trying to understand a complicated explanation, doing math in your head, puzzlement, or overthinking.",
+    "description": "A woman squints with a confused expression while mathematical equations float around her face. Used when mentally calculating, overthinking, trying to understand a complicated explanation or working out something that does not add up.",
     "tags": [
       "math lady",
+      "confused lady",
       "confused woman",
       "equations",
       "calculating",
-      "mathematics",
-      "numbers",
-      "confusion",
-      "overthinking"
+      "mental math",
+      "overthinking",
+      "thinking",
+      "confused",
+      "puzzled",
+      "complicated",
+      "does not add up"
     ]
   },
   {
@@ -1474,7 +1485,14 @@
     "source": "memegen",
     "id": "ackbar",
     "description": "An alarmed Star Wars character realizes a trap has been set. Warning someone of danger, recognizing bait, or noticing an offer is suspicious.",
-    "tags": ["trap", "warning", "danger", "suspicious", "bait", "star wars"]
+    "tags": [
+      "trap",
+      "warning",
+      "danger",
+      "suspicious",
+      "bait",
+      "star wars"
+    ]
   },
   {
     "source": "memegen",
@@ -1494,19 +1512,40 @@
     "source": "memegen",
     "id": "agnes",
     "description": "Agnes gives an exaggerated wink. An obvious secret, pretending innocence, playful implication, or signaling that someone knows more than they say.",
-    "tags": ["wink", "agnes", "secret", "knowing", "pretending", "suspicious"]
+    "tags": [
+      "wink",
+      "agnes",
+      "secret",
+      "knowing",
+      "pretending",
+      "suspicious"
+    ]
   },
   {
     "source": "memegen",
     "id": "aint-got-time",
     "description": "Sweet Brown reacts emphatically to an unwanted task. Being too busy, refusing an inconvenience, having no patience, or rejecting extra work.",
-    "tags": ["busy", "time", "nope", "refusal", "impatient", "sweet brown"]
+    "tags": [
+      "busy",
+      "time",
+      "nope",
+      "refusal",
+      "impatient",
+      "sweet brown"
+    ]
   },
   {
     "source": "memegen",
     "id": "ams",
     "description": "A seal looks awkward in an uncomfortable moment. Embarrassing silence, a social misstep, being caught, or not knowing how to react.",
-    "tags": ["seal", "awkward", "embarrassed", "silence", "caught", "nervous"]
+    "tags": [
+      "seal",
+      "awkward",
+      "embarrassed",
+      "silence",
+      "caught",
+      "nervous"
+    ]
   },
   {
     "source": "memegen",
@@ -1525,7 +1564,13 @@
     "source": "memegen",
     "id": "apcr",
     "description": "A man introduces a statement that sounds considerate before a problematic punchline. Contradictory attitudes or an attempt at sensitivity that falls apart.",
-    "tags": ["redneck", "contradiction", "misguided", "punchline", "awkward"]
+    "tags": [
+      "redneck",
+      "contradiction",
+      "misguided",
+      "punchline",
+      "awkward"
+    ]
   },
   {
     "source": "memegen",
@@ -1546,7 +1591,13 @@
     "source": "memegen",
     "id": "atis",
     "description": "People share a hearty laugh after a supposedly serious claim. Mocking an unrealistic promise, sarcastic amusement, or a laughably false statement.",
-    "tags": ["laughing", "sarcasm", "claim", "promise", "unrealistic"]
+    "tags": [
+      "laughing",
+      "sarcasm",
+      "claim",
+      "promise",
+      "unrealistic"
+    ]
   },
   {
     "source": "memegen",
@@ -1604,7 +1655,14 @@
     "source": "memegen",
     "id": "awkward-awesome",
     "description": "An awkward social moment unexpectedly becomes a success. An embarrassing mistake works out, a lucky recovery, or accidental confidence.",
-    "tags": ["penguin", "awkward", "success", "lucky", "recovery", "confidence"]
+    "tags": [
+      "penguin",
+      "awkward",
+      "success",
+      "lucky",
+      "recovery",
+      "confidence"
+    ]
   },
   {
     "source": "memegen",
@@ -1623,7 +1681,14 @@
     "source": "memegen",
     "id": "badchoice",
     "description": "A miserable reaction follows a poor choice. Regretting a decision, realizing you picked badly, or suffering an avoidable consequence.",
-    "tags": ["milk", "anchorman", "regret", "choice", "mistake", "consequence"]
+    "tags": [
+      "milk",
+      "anchorman",
+      "regret",
+      "choice",
+      "mistake",
+      "consequence"
+    ]
   },
   {
     "source": "memegen",
@@ -1643,7 +1708,14 @@
     "source": "memegen",
     "id": "bd",
     "description": "An irritated-looking man illustrates defensive online arguments. Petty anger, hurt pride, excuses, or taking a disagreement too personally.",
-    "tags": ["annoyed", "angry", "defensive", "argument", "excuses", "pride"]
+    "tags": [
+      "annoyed",
+      "angry",
+      "defensive",
+      "argument",
+      "excuses",
+      "pride"
+    ]
   },
   {
     "source": "memegen",
@@ -1701,7 +1773,14 @@
     "source": "memegen",
     "id": "biw",
     "description": "A small wolf accompanies minor acts of rebellious intensity. Exaggerating a tiny risk, harmless mischief, or pretending a small action is extreme.",
-    "tags": ["wolf", "baby", "rebellion", "mischief", "risk", "exaggeration"]
+    "tags": [
+      "wolf",
+      "baby",
+      "rebellion",
+      "mischief",
+      "risk",
+      "exaggeration"
+    ]
   },
   {
     "source": "memegen",
@@ -1721,13 +1800,28 @@
     "source": "memegen",
     "id": "boat",
     "description": "A cat in a businesslike pose suggests a new purchase or plan. An impulsive decision, sudden ambition, or treating a silly idea seriously.",
-    "tags": ["cat", "boat", "business", "plan", "impulse", "purchase"]
+    "tags": [
+      "cat",
+      "boat",
+      "business",
+      "plan",
+      "impulse",
+      "purchase"
+    ]
   },
   {
     "source": "memegen",
     "id": "bongo",
     "description": "A cartoon cat plays bongos. Enjoying music, tapping along, cheerful rhythm, playful excitement, or a cute celebration.",
-    "tags": ["cat", "bongo", "drums", "music", "happy", "cute", "celebration"]
+    "tags": [
+      "cat",
+      "bongo",
+      "drums",
+      "music",
+      "happy",
+      "cute",
+      "celebration"
+    ]
   },
   {
     "source": "memegen",
@@ -1746,13 +1840,26 @@
     "source": "memegen",
     "id": "box",
     "description": "A distressed man demands to know what is inside a box. Dread, anxious curiosity, suspense, or an urgent unanswered question.",
-    "tags": ["box", "seven", "question", "anxiety", "dread", "curious"]
+    "tags": [
+      "box",
+      "seven",
+      "question",
+      "anxiety",
+      "dread",
+      "curious"
+    ]
   },
   {
     "source": "memegen",
     "id": "bs",
     "description": "A shark-related wordplay format expresses disbelief. Calling nonsense, rejecting an unfair situation, or reacting to something absurd.",
-    "tags": ["shark", "nonsense", "disbelief", "unfair", "nope"]
+    "tags": [
+      "shark",
+      "nonsense",
+      "disbelief",
+      "unfair",
+      "nope"
+    ]
   },
   {
     "source": "memegen",
@@ -1787,7 +1894,14 @@
     "source": "memegen",
     "id": "cake",
     "description": "Milton from Office Space represents an overlooked employee and a missing promised reward. Workplace resentment, being ignored, or quietly reaching your limit.",
-    "tags": ["milton", "office space", "cake", "work", "ignored", "frustrated"]
+    "tags": [
+      "milton",
+      "office space",
+      "cake",
+      "work",
+      "ignored",
+      "frustrated"
+    ]
   },
   {
     "source": "memegen",
@@ -1806,13 +1920,25 @@
     "source": "memegen",
     "id": "captain-america",
     "description": "Captain America in an elevator sets up an awkward joke or unexpected remark. A tense setting interrupted by a dad joke or deliberate wordplay.",
-    "tags": ["captain america", "elevator", "dad joke", "awkward", "wordplay"]
+    "tags": [
+      "captain america",
+      "elevator",
+      "dad joke",
+      "awkward",
+      "wordplay"
+    ]
   },
   {
     "source": "memegen",
     "id": "cb",
     "description": "A bear offers a private confession. Admitting an embarrassing habit, revealing a secret, or sharing an unpopular personal truth.",
-    "tags": ["bear", "confession", "secret", "admission", "embarrassed"]
+    "tags": [
+      "bear",
+      "confession",
+      "secret",
+      "admission",
+      "embarrassed"
+    ]
   },
   {
     "source": "memegen",
@@ -1831,31 +1957,65 @@
     "source": "memegen",
     "id": "cbg",
     "description": "Comic Book Guy judges something very harshly. Calling an experience the worst, exaggerated disappointment, or pedantic criticism.",
-    "tags": ["comic book guy", "simpsons", "worst", "criticism", "disappointed"]
+    "tags": [
+      "comic book guy",
+      "simpsons",
+      "worst",
+      "criticism",
+      "disappointed"
+    ]
   },
   {
     "source": "memegen",
     "id": "center",
     "description": "A furious reaction to something being much smaller than expected. A tiny version of a promised thing, unreasonable scale, or disbelief about size.",
-    "tags": ["ants", "center", "tiny", "small", "size", "angry", "disbelief"]
+    "tags": [
+      "ants",
+      "center",
+      "tiny",
+      "small",
+      "size",
+      "angry",
+      "disbelief"
+    ]
   },
   {
     "source": "memegen",
     "id": "ch",
     "description": "Captain Hindsight points out what should have been obvious afterward. Unhelpful advice after a mistake, obvious solutions too late, or hindsight.",
-    "tags": ["hindsight", "late", "advice", "mistake", "obvious"]
+    "tags": [
+      "hindsight",
+      "late",
+      "advice",
+      "mistake",
+      "obvious"
+    ]
   },
   {
     "source": "memegen",
     "id": "chair",
     "description": "Two men argue intensely across several panels. A heated debate, opposing opinions, escalating disagreement, or an angry back-and-forth.",
-    "tags": ["argument", "debate", "angry", "disagreement", "chopper", "chair"]
+    "tags": [
+      "argument",
+      "debate",
+      "angry",
+      "disagreement",
+      "chopper",
+      "chair"
+    ]
   },
   {
     "source": "memegen",
     "id": "cheems",
     "description": "A small Shiba Inu with a vulnerable expression. Awkwardness, anxiety, shy admission, feeling overwhelmed, or self-deprecating humor.",
-    "tags": ["cheems", "dog", "shiba", "awkward", "anxious", "vulnerable"]
+    "tags": [
+      "cheems",
+      "dog",
+      "shiba",
+      "awkward",
+      "anxious",
+      "vulnerable"
+    ]
   },
   {
     "source": "memegen",
@@ -1888,19 +2048,38 @@
     "source": "memegen",
     "id": "country",
     "description": "Dr. Nick reacts to an odd situation with exaggerated enthusiasm. An ironic observation about strange customs, rules, or opportunities.",
-    "tags": ["dr nick", "simpsons", "country", "irony", "customs", "rules"]
+    "tags": [
+      "dr nick",
+      "simpsons",
+      "country",
+      "irony",
+      "customs",
+      "rules"
+    ]
   },
   {
     "source": "memegen",
     "id": "crazypills",
     "description": "A man cannot believe that everyone else accepts an absurd situation. Feeling surrounded by nonsense, frustration, disbelief, or being the only one objecting.",
-    "tags": ["crazy pills", "disbelief", "frustrated", "absurd", "confused"]
+    "tags": [
+      "crazy pills",
+      "disbelief",
+      "frustrated",
+      "absurd",
+      "confused"
+    ]
   },
   {
     "source": "memegen",
     "id": "crow",
     "description": "A crow-related reaction criticizes a tired joke or interruption. Dismissing weak material, wanting a better joke, or being unimpressed.",
-    "tags": ["crow", "bird", "joke", "unimpressed", "criticism"]
+    "tags": [
+      "crow",
+      "bird",
+      "joke",
+      "unimpressed",
+      "criticism"
+    ]
   },
   {
     "source": "memegen",
@@ -1919,7 +2098,14 @@
     "source": "memegen",
     "id": "cryingfloor",
     "description": "Someone cries on the floor. Overwhelming sadness, a dramatic disappointment, emotional exhaustion, or exaggerated despair.",
-    "tags": ["crying", "floor", "sad", "disappointed", "exhausted", "despair"]
+    "tags": [
+      "crying",
+      "floor",
+      "sad",
+      "disappointed",
+      "exhausted",
+      "despair"
+    ]
   },
   {
     "source": "memegen",
@@ -1941,13 +2127,25 @@
     "source": "memegen",
     "id": "dbg",
     "description": "An excited expression turns disappointed. Expectation versus reality, a letdown, a promising thing turning out badly, or false hope.",
-    "tags": ["expectation", "reality", "disappointed", "letdown", "hope"]
+    "tags": [
+      "expectation",
+      "reality",
+      "disappointed",
+      "letdown",
+      "hope"
+    ]
   },
   {
     "source": "memegen",
     "id": "dg",
     "description": "A girlfriend's attention shifts toward someone else. Temptation, distraction, jealousy, or ignoring the original choice for something new.",
-    "tags": ["girlfriend", "distracted", "temptation", "jealous", "attention"]
+    "tags": [
+      "girlfriend",
+      "distracted",
+      "temptation",
+      "jealous",
+      "attention"
+    ]
   },
   {
     "source": "memegen",
@@ -1980,13 +2178,26 @@
     "source": "memegen",
     "id": "doge",
     "description": "A Shiba Inu looks sideways with a distinctive expression. Amazement, playful excitement, ironic praise, or a cute dog reaction.",
-    "tags": ["doge", "dog", "shiba", "wow", "amazed", "cute"]
+    "tags": [
+      "doge",
+      "dog",
+      "shiba",
+      "wow",
+      "amazed",
+      "cute"
+    ]
   },
   {
     "source": "memegen",
     "id": "dragon",
     "description": "A wish is so difficult that a dragon seems easier to provide. An impossible request, unrealistic expectations, or a wildly ambitious desire.",
-    "tags": ["dragon", "wish", "impossible", "request", "unrealistic"]
+    "tags": [
+      "dragon",
+      "wish",
+      "impossible",
+      "request",
+      "unrealistic"
+    ]
   },
   {
     "source": "memegen",
@@ -2007,13 +2218,26 @@
     "source": "memegen",
     "id": "drowning",
     "description": "A drowning person receives an unhelpful high five instead of rescue. Offering the wrong kind of help, misplaced encouragement, or ignoring a serious problem.",
-    "tags": ["drowning", "water", "high five", "unhelpful", "help", "problem"]
+    "tags": [
+      "drowning",
+      "water",
+      "high five",
+      "unhelpful",
+      "help",
+      "problem"
+    ]
   },
   {
     "source": "memegen",
     "id": "drunk",
     "description": "A baby with an exaggerated expression represents drunken behavior. Rambling, misplaced confidence, poor decisions, or an absurdly serious statement.",
-    "tags": ["baby", "drunk", "rambling", "confidence", "decision"]
+    "tags": [
+      "baby",
+      "drunk",
+      "rambling",
+      "confidence",
+      "decision"
+    ]
   },
   {
     "source": "memegen",
@@ -2034,7 +2258,13 @@
     "source": "memegen",
     "id": "dsm",
     "description": "A dating-profile introduction takes a sinister turn. A reassuring description becomes suspicious, alarming, or unexpectedly threatening.",
-    "tags": ["dating", "profile", "suspicious", "twist", "alarming"]
+    "tags": [
+      "dating",
+      "profile",
+      "suspicious",
+      "twist",
+      "alarming"
+    ]
   },
   {
     "source": "memegen",
@@ -2053,19 +2283,38 @@
     "source": "memegen",
     "id": "elf",
     "description": "An elf denounces an obvious falsehood. Calling someone a liar, disbelief, rejection of a dubious claim, or dramatic accusation.",
-    "tags": ["elf", "lies", "liar", "disbelief", "accusation"]
+    "tags": [
+      "elf",
+      "lies",
+      "liar",
+      "disbelief",
+      "accusation"
+    ]
   },
   {
     "source": "memegen",
     "id": "elmo",
     "description": "Elmo chooses an alarming option over ordinary alternatives. An absurd preference, temptation, impulsive behavior, or exaggerated bad decisions.",
-    "tags": ["elmo", "choice", "temptation", "impulsive", "bad decision"]
+    "tags": [
+      "elmo",
+      "choice",
+      "temptation",
+      "impulsive",
+      "bad decision"
+    ]
   },
   {
     "source": "memegen",
     "id": "ermg",
     "description": "An excited girl holds books with a distinctive expression. Overwhelming enthusiasm, fan excitement, nerdy joy, or playful surprise.",
-    "tags": ["books", "girl", "excited", "enthusiasm", "nerdy", "surprised"]
+    "tags": [
+      "books",
+      "girl",
+      "excited",
+      "enthusiasm",
+      "nerdy",
+      "surprised"
+    ]
   },
   {
     "source": "memegen",
@@ -2086,7 +2335,13 @@
     "source": "memegen",
     "id": "fa",
     "description": "A lonely cartoon face represents isolation. No friends, being single, feeling left out, sadness, or exaggerated self-pity.",
-    "tags": ["forever alone", "lonely", "sad", "single", "left out"]
+    "tags": [
+      "forever alone",
+      "lonely",
+      "sad",
+      "single",
+      "left out"
+    ]
   },
   {
     "source": "memegen",
@@ -2118,13 +2373,26 @@
     "source": "memegen",
     "id": "feelsgood",
     "description": "A contented reaction conveys satisfaction. Feeling good, relief, comfort, happiness, or enjoying a simple pleasure.",
-    "tags": ["good", "happy", "satisfied", "relief", "comfort"]
+    "tags": [
+      "good",
+      "happy",
+      "satisfied",
+      "relief",
+      "comfort"
+    ]
   },
   {
     "source": "memegen",
     "id": "fetch",
     "description": "A character rejects repeated attempts to popularize a phrase or trend. Stop forcing it, an unpopular idea, or frustration with a recurring suggestion.",
-    "tags": ["fetch", "mean girls", "trend", "phrase", "frustrated", "reject"]
+    "tags": [
+      "fetch",
+      "mean girls",
+      "trend",
+      "phrase",
+      "frustrated",
+      "reject"
+    ]
   },
   {
     "source": "memegen",
@@ -2147,19 +2415,37 @@
     "source": "memegen",
     "id": "firsttry",
     "description": "An apparent effortless success is proudly presented as a first attempt. A lucky result, false confidence, or pretending repeated failures never happened.",
-    "tags": ["first try", "success", "lucky", "confidence", "pretending"]
+    "tags": [
+      "first try",
+      "success",
+      "lucky",
+      "confidence",
+      "pretending"
+    ]
   },
   {
     "source": "memegen",
     "id": "fmr",
     "description": "A person reacts to being blamed or dismissed unfairly. Feeling singled out, frustration, sarcasm, or an unfair response to a reasonable action.",
-    "tags": ["unfair", "blame", "frustrated", "sarcasm", "dismissed"]
+    "tags": [
+      "unfair",
+      "blame",
+      "frustrated",
+      "sarcasm",
+      "dismissed"
+    ]
   },
   {
     "source": "memegen",
     "id": "friends",
     "description": "A question about whether two people are friends invites an awkward answer. Unclear relationships, unexpected alliances, or a mismatch in closeness.",
-    "tags": ["friends", "friendship", "relationship", "awkward", "alliance"]
+    "tags": [
+      "friends",
+      "friendship",
+      "relationship",
+      "awkward",
+      "alliance"
+    ]
   },
   {
     "source": "memegen",
@@ -2192,7 +2478,13 @@
     "source": "memegen",
     "id": "gandalf",
     "description": "Gandalf looks puzzled. Confusion, forgetting what was happening, not understanding an explanation, or an unexpected question.",
-    "tags": ["gandalf", "lord of the rings", "confused", "puzzled", "question"]
+    "tags": [
+      "gandalf",
+      "lord of the rings",
+      "confused",
+      "puzzled",
+      "question"
+    ]
   },
   {
     "source": "memegen",
@@ -2212,19 +2504,39 @@
     "source": "memegen",
     "id": "gears",
     "description": "Peter Griffin complains about something that annoys him. Pet peeves, recurring frustration, a rant, or pointing out irritating behavior.",
-    "tags": ["peter griffin", "family guy", "annoyed", "frustrated", "rant"]
+    "tags": [
+      "peter griffin",
+      "family guy",
+      "annoyed",
+      "frustrated",
+      "rant"
+    ]
   },
   {
     "source": "memegen",
     "id": "genie",
     "description": "A genie hears a wish. Asking for an impossible favor, negotiating a desire, or discovering a loophole in a request.",
-    "tags": ["genie", "lamp", "aladdin", "wish", "request", "loophole"]
+    "tags": [
+      "genie",
+      "lamp",
+      "aladdin",
+      "wish",
+      "request",
+      "loophole"
+    ]
   },
   {
     "source": "memegen",
     "id": "ggg",
     "description": "A relaxed man represents considerate behavior. A surprisingly kind gesture, doing someone a favor, support, or being a good friend.",
-    "tags": ["greg", "kind", "helpful", "support", "friend", "considerate"]
+    "tags": [
+      "greg",
+      "kind",
+      "helpful",
+      "support",
+      "friend",
+      "considerate"
+    ]
   },
   {
     "source": "memegen",
@@ -2243,7 +2555,13 @@
     "source": "memegen",
     "id": "gone",
     "description": "A financial reassurance abruptly becomes a total loss. Money disappears, a plan collapses quickly, disappointment, or an immediate setback.",
-    "tags": ["gone", "money", "loss", "disappointed", "south park"]
+    "tags": [
+      "gone",
+      "money",
+      "loss",
+      "disappointed",
+      "south park"
+    ]
   },
   {
     "source": "memegen",
@@ -2278,7 +2596,14 @@
     "source": "memegen",
     "id": "grumpycat",
     "description": "A cat with a permanent frown reacts negatively. Grumpiness, blunt refusal, dislike, a bad mood, or being unimpressed by enthusiasm.",
-    "tags": ["cat", "grumpy", "nope", "angry", "unimpressed", "dislike"]
+    "tags": [
+      "cat",
+      "grumpy",
+      "nope",
+      "angry",
+      "unimpressed",
+      "dislike"
+    ]
   },
   {
     "source": "memegen",
@@ -2312,7 +2637,13 @@
     "source": "memegen",
     "id": "happening",
     "description": "An excited reaction announces that a long-awaited event is finally beginning. Anticipation, celebration, excitement, or alarm at a sudden development.",
-    "tags": ["happening", "finally", "excited", "anticipation", "celebration"]
+    "tags": [
+      "happening",
+      "finally",
+      "excited",
+      "anticipation",
+      "celebration"
+    ]
   },
   {
     "source": "memegen",
@@ -2359,13 +2690,26 @@
     "source": "memegen",
     "id": "home",
     "description": "A promised thing at home turns out to be a disappointing substitute. A cheaper alternative, expectation versus reality, or being denied the preferred choice.",
-    "tags": ["home", "food", "substitute", "disappointed", "comparison"]
+    "tags": [
+      "home",
+      "food",
+      "substitute",
+      "disappointed",
+      "comparison"
+    ]
   },
   {
     "source": "memegen",
     "id": "icanhas",
     "description": "A cat asks for a cheeseburger. Cute pleading, wanting food, asking for a treat, or a playful request.",
-    "tags": ["cat", "cheeseburger", "food", "hungry", "cute", "request"]
+    "tags": [
+      "cat",
+      "cheeseburger",
+      "food",
+      "hungry",
+      "cute",
+      "request"
+    ]
   },
   {
     "source": "memegen",
@@ -2384,7 +2728,13 @@
     "source": "memegen",
     "id": "inigo",
     "description": "A determined character introduces himself before seeking an explanation or reckoning. A formal introduction, a persistent mission, or a repeated demand.",
-    "tags": ["inigo", "princess bride", "introduction", "determined", "mission"]
+    "tags": [
+      "inigo",
+      "princess bride",
+      "introduction",
+      "determined",
+      "mission"
+    ]
   },
   {
     "source": "memegen",
@@ -2402,25 +2752,50 @@
     "source": "memegen",
     "id": "ive",
     "description": "A design-focused comparison exaggerates simplifying or redesigning something. Minimalism, removing useful features, product design, or an impractical redesign.",
-    "tags": ["jony ive", "design", "minimalism", "redesign", "features"]
+    "tags": [
+      "jony ive",
+      "design",
+      "minimalism",
+      "redesign",
+      "features"
+    ]
   },
   {
     "source": "memegen",
     "id": "iw",
     "description": "A fierce wolf represents reckless intensity. Extreme determination, outrageous escalation, abandoning restraint, or a wildly aggressive solution.",
-    "tags": ["wolf", "intense", "reckless", "aggressive", "escalation"]
+    "tags": [
+      "wolf",
+      "intense",
+      "reckless",
+      "aggressive",
+      "escalation"
+    ]
   },
   {
     "source": "memegen",
     "id": "jd",
     "description": "An old-fashioned portrait restates a modern phrase in elaborate language. Archaic wording, fancy paraphrases, formal speech, or an overly sophisticated version.",
-    "tags": ["portrait", "archaic", "fancy", "language", "formal", "paraphrase"]
+    "tags": [
+      "portrait",
+      "archaic",
+      "fancy",
+      "language",
+      "formal",
+      "paraphrase"
+    ]
   },
   {
     "source": "memegen",
     "id": "jetpack",
     "description": "A figure uses a jetpack to leave. Abruptly exiting a conversation, avoiding a problem, finding nothing useful, or making a quick escape.",
-    "tags": ["jetpack", "leave", "exit", "escape", "avoidance"]
+    "tags": [
+      "jetpack",
+      "leave",
+      "exit",
+      "escape",
+      "avoidance"
+    ]
   },
   {
     "source": "memegen",
@@ -2439,19 +2814,38 @@
     "source": "memegen",
     "id": "joker",
     "description": "The Joker presents a supposedly simple plan. An extreme solution framed casually, unsettling logic, or an elaborate problem reduced to one instruction.",
-    "tags": ["joker", "batman", "plan", "solution", "logic", "extreme"]
+    "tags": [
+      "joker",
+      "batman",
+      "plan",
+      "solution",
+      "logic",
+      "extreme"
+    ]
   },
   {
     "source": "memegen",
     "id": "jw",
     "description": "A cautious expression questions whether an idea is wise. Hesitation, concern, advising against a plan, or anticipating a bad outcome.",
-    "tags": ["bad idea", "hesitation", "concern", "caution", "warning"]
+    "tags": [
+      "bad idea",
+      "hesitation",
+      "concern",
+      "caution",
+      "warning"
+    ]
   },
   {
     "source": "memegen",
     "id": "keanu",
     "description": "Keanu Reeves looks startled while considering a theory. A surprising possibility, overthinking, conspiracy, or a sudden unsettling question.",
-    "tags": ["keanu", "conspiracy", "theory", "surprised", "overthinking"]
+    "tags": [
+      "keanu",
+      "conspiracy",
+      "theory",
+      "surprised",
+      "overthinking"
+    ]
   },
   {
     "source": "memegen",
@@ -2470,13 +2864,26 @@
     "source": "memegen",
     "id": "khaby-lame",
     "description": "Khaby Lame gestures at an obvious simple solution. Pointing out needless complexity, common sense, disbelief, or solving a problem directly.",
-    "tags": ["khaby", "hands", "obvious", "simple", "solution", "unimpressed"]
+    "tags": [
+      "khaby",
+      "hands",
+      "obvious",
+      "simple",
+      "solution",
+      "unimpressed"
+    ]
   },
   {
     "source": "memegen",
     "id": "kk",
     "description": "A boy in karate attire represents exaggerated toughness. Imagining an intimidating response, overconfidence, or a dramatic reaction to a slight.",
-    "tags": ["karate", "kyle", "tough", "overconfident", "intimidating"]
+    "tags": [
+      "karate",
+      "kyle",
+      "tough",
+      "overconfident",
+      "intimidating"
+    ]
   },
   {
     "source": "memegen",
@@ -2495,13 +2902,26 @@
     "source": "memegen",
     "id": "kramer",
     "description": "A surprised interruption questions what is happening nearby. Curiosity, suspicion, unexpected activity, or an alarming explanation.",
-    "tags": ["kramer", "seinfeld", "question", "surprised", "suspicious"]
+    "tags": [
+      "kramer",
+      "seinfeld",
+      "question",
+      "surprised",
+      "suspicious"
+    ]
   },
   {
     "source": "memegen",
     "id": "leo",
     "description": "Leonardo DiCaprio walks with a cheerful confident stride. Feeling carefree, celebrating a small success, good mood, or walking away pleased.",
-    "tags": ["leo", "leonardo", "dicaprio", "walking", "happy", "confident"]
+    "tags": [
+      "leo",
+      "leonardo",
+      "dicaprio",
+      "walking",
+      "happy",
+      "confident"
+    ]
   },
   {
     "source": "memegen",
@@ -2520,37 +2940,74 @@
     "source": "memegen",
     "id": "live",
     "description": "An angry presenter decides to continue despite preparation problems. Frustration, improvising, doing something live, or abandoning a careful plan.",
-    "tags": ["live", "angry", "frustrated", "improvise", "plan"]
+    "tags": [
+      "live",
+      "angry",
+      "frustrated",
+      "improvise",
+      "plan"
+    ]
   },
   {
     "source": "memegen",
     "id": "ll",
     "description": "A lizard appears to laugh. Amusement, a silly joke, a playful reaction, or laughter at something absurd.",
-    "tags": ["lizard", "laughing", "amused", "joke", "silly"]
+    "tags": [
+      "lizard",
+      "laughing",
+      "amused",
+      "joke",
+      "silly"
+    ]
   },
   {
     "source": "memegen",
     "id": "lrv",
     "description": "An imposing figure in an ordinary setting represents exaggerated intensity. Treating a mundane task as a heroic mission or epic achievement.",
-    "tags": ["viking", "laundry", "epic", "ordinary", "heroic"]
+    "tags": [
+      "viking",
+      "laundry",
+      "epic",
+      "ordinary",
+      "heroic"
+    ]
   },
   {
     "source": "memegen",
     "id": "made",
     "description": "A character claims credit for something another person created. Taking credit, copying work, authorship, or an unearned claim of ownership.",
-    "tags": ["made", "credit", "copying", "ownership", "authorship"]
+    "tags": [
+      "made",
+      "credit",
+      "copying",
+      "ownership",
+      "authorship"
+    ]
   },
   {
     "source": "memegen",
     "id": "mb",
     "description": "Berries recall familiar past experiences. Nostalgia, remembering old entertainment, missing the past, or repetitive reminiscing.",
-    "tags": ["berries", "remember", "nostalgia", "past", "memories"]
+    "tags": [
+      "berries",
+      "remember",
+      "nostalgia",
+      "past",
+      "memories"
+    ]
   },
   {
     "source": "memegen",
     "id": "michael-scott",
     "description": "Michael Scott reacts with emphatic distress and refusal. Absolutely not, an unwanted arrival, disbelief, panic, or strongly rejecting a situation.",
-    "tags": ["michael scott", "the office", "no", "nope", "panic", "distress"]
+    "tags": [
+      "michael scott",
+      "the office",
+      "no",
+      "nope",
+      "panic",
+      "distress"
+    ]
   },
   {
     "source": "memegen",
@@ -2584,19 +3041,41 @@
     "source": "memegen",
     "id": "mini-keanu",
     "description": "A small version of Keanu Reeves stands alone. Feeling tiny, vulnerable, awkward, shy, or quietly present.",
-    "tags": ["keanu", "small", "tiny", "awkward", "shy", "vulnerable"]
+    "tags": [
+      "keanu",
+      "small",
+      "tiny",
+      "awkward",
+      "shy",
+      "vulnerable"
+    ]
   },
   {
     "source": "memegen",
     "id": "mmm",
     "description": "A minor error leads to an embarrassing consequence. A small mistake, forgetfulness, regret, or an avoidable mishap.",
-    "tags": ["marvin", "mistake", "minor", "embarrassed", "regret", "forgot"]
+    "tags": [
+      "marvin",
+      "mistake",
+      "minor",
+      "embarrassed",
+      "regret",
+      "forgot"
+    ]
   },
   {
     "source": "memegen",
     "id": "money",
     "description": "Fry holds out cash enthusiastically. Wanting to buy something immediately, an irresistible product, excitement, or approval of a great idea.",
-    "tags": ["fry", "futurama", "money", "buy", "want", "excited", "approval"]
+    "tags": [
+      "fry",
+      "futurama",
+      "money",
+      "buy",
+      "want",
+      "excited",
+      "approval"
+    ]
   },
   {
     "source": "memegen",
@@ -2629,55 +3108,114 @@
     "source": "memegen",
     "id": "mouth",
     "description": "A woman holds a dog's mouth closed. Stopping someone from speaking, suppressing an unwanted comment, or interrupting an embarrassing remark.",
-    "tags": ["dog", "woman", "mouth", "silence", "interrupt", "comment"]
+    "tags": [
+      "dog",
+      "woman",
+      "mouth",
+      "silence",
+      "interrupt",
+      "comment"
+    ]
   },
   {
     "source": "memegen",
     "id": "mw",
     "description": "A confident spokesperson guarantees a result. Certainty, a bold promise, reassurance, or overconfident prediction.",
-    "tags": ["guarantee", "promise", "certain", "confident", "prediction"]
+    "tags": [
+      "guarantee",
+      "promise",
+      "certain",
+      "confident",
+      "prediction"
+    ]
   },
   {
     "source": "memegen",
     "id": "nails",
     "description": "A man hammers nails into sand. Futile effort, an impractical task, a solution that cannot work, or pointless persistence.",
-    "tags": ["nails", "sand", "hammer", "futile", "pointless", "effort"]
+    "tags": [
+      "nails",
+      "sand",
+      "hammer",
+      "futile",
+      "pointless",
+      "effort"
+    ]
   },
   {
     "source": "memegen",
     "id": "nice",
     "description": "A man finds a modest consolation in a bad situation. A small silver lining, looking on the bright side, or settling for one positive thing.",
-    "tags": ["nice", "silver lining", "consolation", "positive", "optimism"]
+    "tags": [
+      "nice",
+      "silver lining",
+      "consolation",
+      "positive",
+      "optimism"
+    ]
   },
   {
     "source": "memegen",
     "id": "noah",
     "description": "A baffled character questions a strange sight. Confusion, disbelief, something inexplicable, or asking what is going on.",
-    "tags": ["noah", "family guy", "confused", "disbelief", "strange"]
+    "tags": [
+      "noah",
+      "family guy",
+      "confused",
+      "disbelief",
+      "strange"
+    ]
   },
   {
     "source": "memegen",
     "id": "noidea",
     "description": "A dog appears in a role it clearly does not understand. Improvising without knowledge, pretending competence, confusion, or being unqualified for a task.",
-    "tags": ["dog", "no idea", "confused", "unqualified", "pretending", "work"]
+    "tags": [
+      "dog",
+      "no idea",
+      "confused",
+      "unqualified",
+      "pretending",
+      "work"
+    ]
   },
   {
     "source": "memegen",
     "id": "ntot",
     "description": "A dog wants a toy thrown without letting it be taken. Contradictory demands, wanting an outcome without its prerequisite, or refusing a necessary step.",
-    "tags": ["dog", "toy", "throw", "take", "contradiction", "demands"]
+    "tags": [
+      "dog",
+      "toy",
+      "throw",
+      "take",
+      "contradiction",
+      "demands"
+    ]
   },
   {
     "source": "memegen",
     "id": "oag",
     "description": "A woman stares intensely toward the viewer. Excessive attachment, possessiveness, clinginess, or intrusive attention.",
-    "tags": ["girlfriend", "staring", "clingy", "attached", "possessive"]
+    "tags": [
+      "girlfriend",
+      "staring",
+      "clingy",
+      "attached",
+      "possessive"
+    ]
   },
   {
     "source": "memegen",
     "id": "officespace",
     "description": "A manager politely delivers an unwelcome work request. Passive-aggressive reminders, extra tasks, office frustration, or an unreasonable deadline.",
-    "tags": ["manager", "office space", "work", "request", "boss", "deadline"]
+    "tags": [
+      "manager",
+      "office space",
+      "work",
+      "request",
+      "boss",
+      "deadline"
+    ]
   },
   {
     "source": "memegen",
@@ -2726,19 +3264,39 @@
     "source": "memegen",
     "id": "patrick",
     "description": "Patrick proposes moving a problem elsewhere. A simplistic solution, avoiding the real issue, relocating trouble, or flawed logic.",
-    "tags": ["patrick", "spongebob", "move", "problem", "solution", "logic"]
+    "tags": [
+      "patrick",
+      "spongebob",
+      "move",
+      "problem",
+      "solution",
+      "logic"
+    ]
   },
   {
     "source": "memegen",
     "id": "perfection",
     "description": "A progressively improved choice reaches an ideal version. Preference, comparison, admiration, or finally finding exactly what was wanted.",
-    "tags": ["perfection", "comparison", "preference", "ideal", "approval"]
+    "tags": [
+      "perfection",
+      "comparison",
+      "preference",
+      "ideal",
+      "approval"
+    ]
   },
   {
     "source": "memegen",
     "id": "persian",
     "description": "A startled-looking cat creature reacts with its paws raised. Confusion, surprise, an awkward response, or not knowing what to say.",
-    "tags": ["persian cat", "cat", "confused", "surprised", "awkward", "paws"]
+    "tags": [
+      "persian cat",
+      "cat",
+      "confused",
+      "surprised",
+      "awkward",
+      "paws"
+    ]
   },
   {
     "source": "memegen",
@@ -2801,7 +3359,13 @@
     "source": "memegen",
     "id": "prop3",
     "description": "A political-ad style message labels something confusing and extreme. Mocking exaggerated warnings, confusion, or dismissing a complicated proposal.",
-    "tags": ["confusing", "extreme", "warning", "proposal", "confused"]
+    "tags": [
+      "confusing",
+      "extreme",
+      "warning",
+      "proposal",
+      "confused"
+    ]
   },
   {
     "source": "memegen",
@@ -2821,25 +3385,49 @@
     "source": "memegen",
     "id": "puffin",
     "description": "A puffin introduces an unpopular opinion. Admitting an unusual preference, disagreeing with a consensus, or a controversial personal view.",
-    "tags": ["puffin", "opinion", "unpopular", "disagree", "preference"]
+    "tags": [
+      "puffin",
+      "opinion",
+      "unpopular",
+      "disagree",
+      "preference"
+    ]
   },
   {
     "source": "memegen",
     "id": "red",
     "description": "A character anticipates a day of arguing. Recognizing that an ordinary discussion will become a fight, annoyance, or resigned frustration.",
-    "tags": ["red", "argument", "fight", "annoyed", "frustrated"]
+    "tags": [
+      "red",
+      "argument",
+      "fight",
+      "annoyed",
+      "frustrated"
+    ]
   },
   {
     "source": "memegen",
     "id": "regret",
     "description": "A distressed reaction follows an impulsive choice. Immediate regret, a plan backfiring, realizing a mistake, or wanting to undo an action.",
-    "tags": ["regret", "mistake", "impulsive", "backfire", "undo"]
+    "tags": [
+      "regret",
+      "mistake",
+      "impulsive",
+      "backfire",
+      "undo"
+    ]
   },
   {
     "source": "memegen",
     "id": "remembers",
     "description": "An older man recalls something others have forgotten. Long memory, nostalgia, remembered promises, or pointing out past behavior.",
-    "tags": ["remember", "pepperidge farm", "memory", "past", "nostalgia"]
+    "tags": [
+      "remember",
+      "pepperidge farm",
+      "memory",
+      "past",
+      "nostalgia"
+    ]
   },
   {
     "source": "memegen",
@@ -2889,43 +3477,82 @@
     "source": "memegen",
     "id": "sad-biden",
     "description": "Joe Biden looks downcast. Sadness, disappointment, feeling left out, or an unfortunate outcome.",
-    "tags": ["biden", "sad", "disappointed", "left out"]
+    "tags": [
+      "biden",
+      "sad",
+      "disappointed",
+      "left out"
+    ]
   },
   {
     "source": "memegen",
     "id": "sad-boehner",
     "description": "John Boehner appears emotional or downcast. Sadness, disappointment, or an emotionally difficult moment.",
-    "tags": ["boehner", "sad", "emotional", "disappointed"]
+    "tags": [
+      "boehner",
+      "sad",
+      "emotional",
+      "disappointed"
+    ]
   },
   {
     "source": "memegen",
     "id": "sad-bush",
     "description": "George W. Bush appears downcast. Sadness, a disappointing outcome, or quiet frustration.",
-    "tags": ["bush", "sad", "disappointed", "frustrated"]
+    "tags": [
+      "bush",
+      "sad",
+      "disappointed",
+      "frustrated"
+    ]
   },
   {
     "source": "memegen",
     "id": "sad-clinton",
     "description": "Bill Clinton appears downcast. Sadness, disappointment, regret, or a subdued reaction.",
-    "tags": ["clinton", "sad", "disappointed", "regret"]
+    "tags": [
+      "clinton",
+      "sad",
+      "disappointed",
+      "regret"
+    ]
   },
   {
     "source": "memegen",
     "id": "sad-obama",
     "description": "Barack Obama appears downcast. Sadness, disappointment, or a subdued response to a setback.",
-    "tags": ["obama", "sad", "disappointed", "setback"]
+    "tags": [
+      "obama",
+      "sad",
+      "disappointed",
+      "setback"
+    ]
   },
   {
     "source": "memegen",
     "id": "sadfrog",
     "description": "A sad frog expresses disappointment. Feeling bad, loneliness, a letdown, regret, or quiet sadness.",
-    "tags": ["frog", "pepe", "sad", "lonely", "disappointed", "regret"]
+    "tags": [
+      "frog",
+      "pepe",
+      "sad",
+      "lonely",
+      "disappointed",
+      "regret"
+    ]
   },
   {
     "source": "memegen",
     "id": "saltbae",
     "description": "A chef sprinkles salt with an exaggerated flourish. Adding a final touch, showing off, theatrical precision, or excessive style.",
-    "tags": ["salt", "chef", "sprinkle", "flourish", "style", "finishing touch"]
+    "tags": [
+      "salt",
+      "chef",
+      "sprinkle",
+      "flourish",
+      "style",
+      "finishing touch"
+    ]
   },
   {
     "source": "memegen",
@@ -2945,7 +3572,13 @@
     "source": "memegen",
     "id": "sarcasticbear",
     "description": "A bear's reaction expresses ironic approval. Sarcasm, disbelief, mock enthusiasm, or an unimpressed response.",
-    "tags": ["bear", "sarcastic", "sarcasm", "unimpressed", "irony"]
+    "tags": [
+      "bear",
+      "sarcastic",
+      "sarcasm",
+      "unimpressed",
+      "irony"
+    ]
   },
   {
     "source": "memegen",
@@ -2978,7 +3611,13 @@
     "source": "memegen",
     "id": "scc",
     "description": "A man suddenly understands something. Realization, an unexpected insight, connecting the dots, or a moment of clarity.",
-    "tags": ["clarence", "clarity", "realization", "insight", "understand"]
+    "tags": [
+      "clarence",
+      "clarity",
+      "realization",
+      "insight",
+      "understand"
+    ]
   },
   {
     "source": "memegen",
@@ -2998,7 +3637,13 @@
     "source": "memegen",
     "id": "sf",
     "description": "An outcome appears inevitable. A looming consequence, accepting your fate, or realizing it is too late to avoid a problem.",
-    "tags": ["fate", "inevitable", "consequence", "too late", "doom"]
+    "tags": [
+      "fate",
+      "inevitable",
+      "consequence",
+      "too late",
+      "doom"
+    ]
   },
   {
     "source": "memegen",
@@ -3018,7 +3663,13 @@
     "source": "memegen",
     "id": "ski",
     "description": "A relaxed instructor offers memorable advice. Warning about a common mistake, a simple rule, or saying an action will lead to a bad time.",
-    "tags": ["ski", "instructor", "advice", "warning", "mistake"]
+    "tags": [
+      "ski",
+      "instructor",
+      "advice",
+      "warning",
+      "mistake"
+    ]
   },
   {
     "source": "memegen",
@@ -3037,37 +3688,75 @@
     "source": "memegen",
     "id": "snek",
     "description": "A snake appears doubtful. Suspicion, skepticism, questioning an explanation, or a wary reaction.",
-    "tags": ["snake", "snek", "suspicious", "skeptical", "doubt"]
+    "tags": [
+      "snake",
+      "snek",
+      "suspicious",
+      "skeptical",
+      "doubt"
+    ]
   },
   {
     "source": "memegen",
     "id": "soa",
     "description": "A seal offers approval. Agreement, endorsement, praise, or reacting positively to a good idea.",
-    "tags": ["seal", "approval", "agree", "yes", "praise"]
+    "tags": [
+      "seal",
+      "approval",
+      "agree",
+      "yes",
+      "praise"
+    ]
   },
   {
     "source": "memegen",
     "id": "sohappy",
     "description": "An imagined event would make someone extremely happy. Wishing for a particular outcome, anticipation, desire, or a dream scenario.",
-    "tags": ["happy", "wish", "desire", "anticipation", "excited"]
+    "tags": [
+      "happy",
+      "wish",
+      "desire",
+      "anticipation",
+      "excited"
+    ]
   },
   {
     "source": "memegen",
     "id": "sohot",
     "description": "A fashionable person or trend is suddenly everywhere. Popularity, hype, a current obsession, or something considered desirable.",
-    "tags": ["hot", "trend", "popular", "hype", "desirable"]
+    "tags": [
+      "hot",
+      "trend",
+      "popular",
+      "hype",
+      "desirable"
+    ]
   },
   {
     "source": "memegen",
     "id": "soup-nazi",
     "description": "A stern refusal denies someone what they want. Breaking a rule, being rejected, no exceptions, or an abrupt punishment.",
-    "tags": ["soup", "seinfeld", "nope", "refuse", "reject", "rules"]
+    "tags": [
+      "soup",
+      "seinfeld",
+      "nope",
+      "refuse",
+      "reject",
+      "rules"
+    ]
   },
   {
     "source": "memegen",
     "id": "sparta",
     "description": "A warrior makes a forceful declaration. Intense confidence, an emphatic response, dramatic commitment, or aggressive enthusiasm.",
-    "tags": ["sparta", "warrior", "shout", "intense", "confident", "dramatic"]
+    "tags": [
+      "sparta",
+      "warrior",
+      "shout",
+      "intense",
+      "confident",
+      "dramatic"
+    ]
   },
   {
     "source": "memegen",
@@ -3087,7 +3776,13 @@
     "source": "memegen",
     "id": "spirit",
     "description": "A fake Halloween costume package labels a recognizable type of person. A stereotype, a role, a collection of habits, or dressing up as an idea.",
-    "tags": ["halloween", "costume", "package", "stereotype", "role"]
+    "tags": [
+      "halloween",
+      "costume",
+      "package",
+      "stereotype",
+      "role"
+    ]
   },
   {
     "source": "memegen",
@@ -3106,25 +3801,51 @@
     "source": "memegen",
     "id": "ss",
     "description": "A casually dressed man represents inconsiderate behavior. A selfish friend, freeloading, disrespect, or someone taking advantage of others.",
-    "tags": ["steve", "selfish", "inconsiderate", "freeloading", "disrespect"]
+    "tags": [
+      "steve",
+      "selfish",
+      "inconsiderate",
+      "freeloading",
+      "disrespect"
+    ]
   },
   {
     "source": "memegen",
     "id": "stew",
     "description": "A small ingredient is enough to start a much bigger plan. Making do with little, resourcefulness, finding potential, or an unexpectedly useful leftover.",
-    "tags": ["stew", "cooking", "resourceful", "leftovers", "potential"]
+    "tags": [
+      "stew",
+      "cooking",
+      "resourceful",
+      "leftovers",
+      "potential"
+    ]
   },
   {
     "source": "memegen",
     "id": "stonks",
     "description": "A suited figure stands in front of a stock-market graphic. Financial decisions, questionable investing logic, imaginary profit, or exaggerated business success.",
-    "tags": ["stonks", "stocks", "money", "investing", "profit", "business"]
+    "tags": [
+      "stonks",
+      "stocks",
+      "money",
+      "investing",
+      "profit",
+      "business"
+    ]
   },
   {
     "source": "memegen",
     "id": "stop",
     "description": "A plea asks someone to stop alarming another person. A reaction has gone too far, an intimidating explanation, or wanting an escalating situation to end.",
-    "tags": ["patrick", "spongebob", "stop", "scared", "alarming", "escalation"]
+    "tags": [
+      "patrick",
+      "spongebob",
+      "stop",
+      "scared",
+      "alarming",
+      "escalation"
+    ]
   },
   {
     "source": "memegen",
@@ -3158,13 +3879,26 @@
     "source": "memegen",
     "id": "tenguy",
     "description": "A dazed-looking man represents confused or intoxicated thoughts. A strange realization, rambling logic, uncertainty, or losing your train of thought.",
-    "tags": ["10 guy", "dazed", "confused", "thoughts", "rambling"]
+    "tags": [
+      "10 guy",
+      "dazed",
+      "confused",
+      "thoughts",
+      "rambling"
+    ]
   },
   {
     "source": "memegen",
     "id": "toohigh",
     "description": "A frustrated man says a cost is excessive. Expensive prices, too much of something, complaining about a number, or an unreasonable demand.",
-    "tags": ["rent", "price", "expensive", "too much", "frustrated", "cost"]
+    "tags": [
+      "rent",
+      "price",
+      "expensive",
+      "too much",
+      "frustrated",
+      "cost"
+    ]
   },
   {
     "source": "memegen",
@@ -3196,13 +3930,25 @@
     "source": "memegen",
     "id": "trump",
     "description": "Donald Trump provides a political reaction format. A confident claim, public declaration, opinion, or exaggerated emphasis.",
-    "tags": ["trump", "politics", "claim", "announcement", "opinion"]
+    "tags": [
+      "trump",
+      "politics",
+      "claim",
+      "announcement",
+      "opinion"
+    ]
   },
   {
     "source": "memegen",
     "id": "ugandanknuck",
     "description": "A stylized Knuckles character asks about the way forward. A playful reference to finding the way, a repeated catchphrase, or a chaotic group joke.",
-    "tags": ["knuckles", "way", "direction", "catchphrase", "group"]
+    "tags": [
+      "knuckles",
+      "way",
+      "direction",
+      "catchphrase",
+      "group"
+    ]
   },
   {
     "source": "memegen",
@@ -3221,13 +3967,26 @@
     "source": "memegen",
     "id": "wallet",
     "description": "Patrick refuses to accept an obvious conclusion despite agreeing with each step. Stubborn denial, circular argument, frustration, or faulty reasoning.",
-    "tags": ["patrick", "wallet", "spongebob", "logic", "denial", "argument"]
+    "tags": [
+      "patrick",
+      "wallet",
+      "spongebob",
+      "logic",
+      "denial",
+      "argument"
+    ]
   },
   {
     "source": "memegen",
     "id": "waygd",
     "description": "A resigned reaction accepts an imperfect situation. Nothing can be done, letting something go, a shrug, or accepting a minor disappointment.",
-    "tags": ["shrug", "resigned", "acceptance", "disappointed", "let go"]
+    "tags": [
+      "shrug",
+      "resigned",
+      "acceptance",
+      "disappointed",
+      "let go"
+    ]
   },
   {
     "source": "memegen",
@@ -3246,7 +4005,14 @@
     "source": "memegen",
     "id": "whatyear",
     "description": "A disoriented man wonders how much time has passed. Waking after a long sleep, an old trend returning, confusion, or feeling out of date.",
-    "tags": ["year", "time", "confused", "sleep", "old trend", "disoriented"]
+    "tags": [
+      "year",
+      "time",
+      "confused",
+      "sleep",
+      "old trend",
+      "disoriented"
+    ]
   },
   {
     "source": "memegen",
@@ -3265,7 +4031,14 @@
     "source": "memegen",
     "id": "wishes",
     "description": "A genie explains limitations before hearing an unusual wish. Finding a loophole, an unacceptable request, bargaining, or testing the rules.",
-    "tags": ["genie", "wishes", "rules", "loophole", "request", "bargain"]
+    "tags": [
+      "genie",
+      "wishes",
+      "rules",
+      "loophole",
+      "request",
+      "bargain"
+    ]
   },
   {
     "source": "memegen",
@@ -3313,13 +4086,25 @@
     "source": "memegen",
     "id": "worst",
     "description": "A bad day is described as the worst so far. Pessimism, anticipating further problems, a disappointing day, or an ominous correction.",
-    "tags": ["worst", "day", "disappointed", "pessimism", "ominous"]
+    "tags": [
+      "worst",
+      "day",
+      "disappointed",
+      "pessimism",
+      "ominous"
+    ]
   },
   {
     "source": "memegen",
     "id": "xy",
     "description": "A cartoon figure enthusiastically calls for doing an action to everything. Exaggerated determination, a sweeping plan, or energetic overcommitment.",
-    "tags": ["all the things", "everything", "enthusiasm", "plan", "determined"]
+    "tags": [
+      "all the things",
+      "everything",
+      "enthusiasm",
+      "plan",
+      "determined"
+    ]
   },
   {
     "source": "memegen",
@@ -3340,13 +4125,26 @@
     "source": "memegen",
     "id": "yodawg",
     "description": "Xzibit describes putting one thing inside another similar thing. Recursion, nested concepts, repeated layers, or an elaborate modification.",
-    "tags": ["xzibit", "yo dawg", "recursion", "nested", "layers"]
+    "tags": [
+      "xzibit",
+      "yo dawg",
+      "recursion",
+      "nested",
+      "layers"
+    ]
   },
   {
     "source": "memegen",
     "id": "yuno",
     "description": "An angry cartoon face demands an explanation. Why has something not happened, impatience, frustration, or a pointed complaint.",
-    "tags": ["y u no", "why", "angry", "frustrated", "impatient", "complaint"]
+    "tags": [
+      "y u no",
+      "why",
+      "angry",
+      "frustrated",
+      "impatient",
+      "complaint"
+    ]
   },
   {
     "source": "memegen",
@@ -3359,6 +4157,196 @@
       "translation",
       "retro",
       "victory"
+    ]
+  },
+  {
+    "source": "imgflip",
+    "id": "574931918",
+    "description": "An older brown chocolate Labrador dog closes his eyes halfway in warm golden sunset light, facing left with a resigned expression. Used when you are cooked, done for, in trouble, doomed or overwhelmed and quietly accept your fate. Also captures taking a deep breath, trying to stay calm, surrendering, exhausted acceptance and pretending everything is okay.",
+    "tags": [
+      "cooked dog",
+      "dog closing his eyes",
+      "brown dog",
+      "chocolate labrador",
+      "sunset",
+      "golden sunlight",
+      "eyes shut",
+      "squinting",
+      "accepting fate",
+      "resigned",
+      "doomed",
+      "done for",
+      "in trouble",
+      "overwhelmed",
+      "stress",
+      "defeated",
+      "quiet suffering",
+      "peaceful",
+      "unbothered",
+      "bro is cooked"
+    ]
+  },
+  {
+    "source": "imgflip",
+    "id": "562391530",
+    "description": "A brown cartoon dog stands casually with his hands in his pockets, wearing a gray sweater and jeans in a grassy field at sunset. The chill guy stays relaxed, laid back, nonchalant and unbothered while everyone else panics or argues. Used for low stakes confidence, minding your own business and acting cool about a chaotic situation.",
+    "tags": [
+      "chill guy",
+      "just a chill guy",
+      "cartoon dog",
+      "hands in pockets",
+      "gray sweater",
+      "relaxed",
+      "laid back",
+      "unbothered",
+      "nonchalant",
+      "calm",
+      "cool",
+      "no worries",
+      "peace",
+      "casual confidence"
+    ]
+  },
+  {
+    "source": "imgflip",
+    "id": "430535625",
+    "description": "Woody from Toy Story holds an arm out in front of Sora from Kingdom Hearts, with the words let him cook. A reaction asking everyone to hold on and let someone cook: give them time to explain an idea, finish their plan or prove that an unlikely approach will work. Often used when someone is onto something, making a good point or deserves a chance before being interrupted.",
+    "tags": [
+      "let him cook",
+      "let her cook",
+      "let them cook",
+      "hold up",
+      "wait",
+      "hear him out",
+      "hear her out",
+      "give a chance",
+      "onto something",
+      "good idea",
+      "patience",
+      "trust the process",
+      "keep going",
+      "potential",
+      "cooking",
+      "woody",
+      "sora",
+      "toy story",
+      "kingdom hearts",
+      "holding back",
+      "arm out"
+    ]
+  },
+  {
+    "source": "imgflip",
+    "id": "511654183",
+    "description": "A tiny wide eyed hamster looks helpless and sad. Used for feeling fragile, overwhelmed by a small inconvenience, nervous about asking a favor, being broke, having hurt feelings or needing gentle reassurance. An exaggerated cute reaction to disappointment and everyday struggles.",
+    "tags": [
+      "sad hamster",
+      "tiny hamster",
+      "wide eyes",
+      "cute",
+      "fragile",
+      "helpless",
+      "overwhelmed",
+      "nervous",
+      "anxious",
+      "disappointed",
+      "hurt feelings",
+      "broke",
+      "small inconvenience",
+      "please",
+      "vulnerable"
+    ]
+  },
+  {
+    "source": "imgflip",
+    "id": "514151477",
+    "description": "A black and white photograph of film director Martin Scorsese holding both hands up. The absolute cinema reaction praises something as a masterpiece, peak storytelling, incredible filmmaking or a beautifully dramatic moment, sometimes sarcastically after an absurd turn of events.",
+    "tags": [
+      "absolute cinema",
+      "martin scorsese",
+      "hands raised",
+      "black and white",
+      "masterpiece",
+      "peak",
+      "cinema",
+      "movie",
+      "film",
+      "perfection",
+      "brilliant",
+      "amazing",
+      "art",
+      "plot twist",
+      "dramatic",
+      "excellent"
+    ]
+  },
+  {
+    "source": "imgflip",
+    "id": "480418395",
+    "description": "A small blue catlike creature with a mushroom shaped head walks through a forest carrying a stick. The Smurf cat is a surreal whimsical internet reaction, often called Shailushai, used for absurd humor, strange little creatures, wandering on an adventure and inexplicable viral jokes.",
+    "tags": [
+      "smurf cat",
+      "blue cat",
+      "shailushai",
+      "mushroom cat",
+      "tiny creature",
+      "forest",
+      "stick",
+      "surreal",
+      "absurd",
+      "weird",
+      "whimsical",
+      "adventure",
+      "wandering",
+      "silly",
+      "tiktok"
+    ]
+  },
+  {
+    "source": "imgflip",
+    "id": "488919824",
+    "description": "A wide eyed white cat with a black patch on top of its head with its mouth slightly open gives a startled questioning look. The huh cat reaction expresses confusion, not understanding what someone just said, asking them to repeat themselves or being baffled by a strange statement. This is a still image of the reaction.",
+    "tags": [
+      "huh cat",
+      "confused cat",
+      "wide eyes",
+      "open mouth",
+      "huh",
+      "what",
+      "excuse me",
+      "come again",
+      "repeat that",
+      "confused",
+      "baffled",
+      "puzzled",
+      "did not understand",
+      "wait what",
+      "cat reaction",
+      "white cat",
+      "black patch"
+    ]
+  },
+  {
+    "source": "imgflip",
+    "id": "417698494",
+    "description": "A close up of a man with extremely wide eyes and an open mouth, with both hands on his head, frozen in surprise. Used for being stunned, speechless or in disbelief after hearing shocking news, noticing something outrageous or realizing an unexpected fact.",
+    "tags": [
+      "shocked black guy",
+      "shocked man",
+      "wide eyes",
+      "open mouth",
+      "surprised",
+      "stunned",
+      "speechless",
+      "disbelief",
+      "astonished",
+      "no way",
+      "what did I just see",
+      "unexpected",
+      "shocking news",
+      "jaw dropped",
+      "hands on head",
+      "grabbing head"
     ]
   }
 ]

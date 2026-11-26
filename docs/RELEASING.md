@@ -74,3 +74,18 @@ Optional Vercel environment variable: `GITHUB_TOKEN`, a read-only credential wit
 Test the endpoint with `npm test --prefix website`. A plain local static server can preview the layout, but cannot run Vercel functions; in that case the site correctly displays its GitHub fallback. Use `vercel dev` or an actual deployment to test the live release endpoint. Use `vercel --prod` or the connected production branch to publish after checking the selected account and project.
 
 The website sets a restrictive Content Security Policy and does not add trackers, remote fonts, or third-party scripts. Its hero displays three authentic popular meme images loaded directly from `i.imgflip.com` and provides an Imgflip hyperlink as required by the provider's [hotlinking terms](https://imgflip.com/terms). Those image requests contact Imgflip. The small interactive website demo searches only its three labelled sample formats; it is not the full application catalog. The source code licence does not relicense third-party meme artwork. Keep both the privacy and catalog descriptions accurate as providers change.
+
+
+## Bundled semantic search
+
+Release packaging runs `npm run model:prepare` before building the frontend. The script downloads a fixed MiniLM revision, verifies sizes and SHA-256 hashes, and bundles weights, tokenizer, configuration, model card, and Apache-2.0 license under `models/minilm/`. This directory is ignored by Git and separate from Vite public assets to avoid embedding the weights twice. `models/README.md` preserves the resource directory in a fresh checkout.
+
+When changing descriptions, regenerate the small committed index with:
+
+```sh
+npm run model:prepare
+cargo test --release --manifest-path src-tauri/Cargo.toml generate_catalog_index -- --ignored --nocapture
+cargo test --release --manifest-path src-tauri/Cargo.toml actual_model_generalizes_descriptions -- --ignored --nocapture
+```
+
+Keep the model revision and checksums aligned between the download script and Rust loader. No model download or remote inference occurs during normal app use. Missing resources produce an explicit lexical fallback notice.

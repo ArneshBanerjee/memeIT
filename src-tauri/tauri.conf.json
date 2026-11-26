@@ -1,26 +1,28 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "MemeIT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "dev.memeit.desktop",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "npm run model:prepare && npm run dev",
     "devUrl": "http://127.0.0.1:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run model:prepare && npm run build",
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [{
-      "label": "main",
-      "title": "MemeIT",
-      "width": 1100,
-      "height": 760,
-      "minWidth": 760,
-      "minHeight": 540,
-      "center": true,
-      "resizable": true,
-      "visible": true
-    }],
+    "windows": [
+      {
+        "label": "main",
+        "title": "MemeIT",
+        "width": 1100,
+        "height": 760,
+        "minWidth": 760,
+        "minHeight": 540,
+        "center": true,
+        "resizable": true,
+        "visible": true
+      }
+    ],
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.imgflip.com https://api.memegen.link https://static.klipy.com https://static1.klipy.com https://static2.klipy.com; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'"
     }
@@ -31,8 +33,19 @@
     "category": "Utility",
     "shortDescription": "Find the reaction. Keep the conversation.",
     "longDescription": "An open-source desktop picker for internet memes, with description search, local template captions, image and GIF sharing, favorites, and a global keyboard shortcut.",
-    "resources": { "../assets/": "assets/" },
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
-    "macOS": { "minimumSystemVersion": "11.0" }
+    "resources": {
+      "../assets/": "assets/",
+      "../models/": "models/"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    }
   }
 }

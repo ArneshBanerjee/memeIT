@@ -1,10 +1,11 @@
 use image::{ImageFormat, ImageReader};
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     fs,
     io::Write,
     path::{Component, Path, PathBuf},
+    sync::OnceLock,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -446,6 +447,49 @@ fn tokenize(text: &str) -> Vec<String> {
         .collect()
 }
 
+fn stem(word: &str) -> String {
+    static STEMMER: OnceLock<rust_stemmers::Stemmer> = OnceLock::new();
+    STEMMER
+        .get_or_init(|| rust_stemmers::Stemmer::create(rust_stemmers::Algorithm::English))
+        .stem(word)
+        .into_owned()
+}
+
+/// Restricted Damerau distance: recover ordinary spelling mistakes without
+/// replacing real short words such as "cat" with "car" or "god" with "dog".
+fn close_spelling(left: &str, right: &str) -> bool {
+    if left.len() < 4 || right.len() < 4 || !left.is_ascii() || !right.is_ascii() {
+        return false;
+    }
+    let maximum = if left.len().min(right.len()) >= 8 {
+        2
+    } else {
+        1
+    };
+    if left.len().abs_diff(right.len()) > maximum {
+        return false;
+    }
+    let (a, b) = (left.as_bytes(), right.as_bytes());
+    let mut table = vec![vec![0; b.len() + 1]; a.len() + 1];
+    for (i, row) in table.iter_mut().enumerate() {
+        row[0] = i;
+    }
+    for j in 0..=b.len() {
+        table[0][j] = j;
+    }
+    for i in 1..=a.len() {
+        for j in 1..=b.len() {
+            table[i][j] = (table[i - 1][j] + 1)
+                .min(table[i][j - 1] + 1)
+                .min(table[i - 1][j - 1] + usize::from(a[i - 1] != b[j - 1]));
+            if i > 1 && j > 1 && a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1] {
+                table[i][j] = table[i][j].min(table[i - 2][j - 2] + 1);
+            }
+        }
+    }
+    table[a.len()][b.len()] <= maximum
+}
+
 fn concept(word: &str) -> &str {
     match word {
         "happy" | "happiness" | "joy" | "excited" | "excitement" | "celebrate" | "celebrating"
@@ -555,6 +599,18 @@ fn query_terms(query: &str) -> (Vec<String>, HashSet<String>) {
 }
 
 pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeItem>> {
+    hybrid_search(items, query, filter, &HashMap::new())
+}
+
+/// Combine independent sentence similarity and lexical evidence. An absent
+/// model leaves ordinary search usable; a model score never overrides explicit
+/// emotion exclusions or turns an exclusion-only query into a recommendation.
+pub fn hybrid_search(
+    items: &[MemeItem],
+    query: &str,
+    filter: &str,
+    semantic: &HashMap<String, f32>,
+) -> Result<Vec<MemeItem>> {
     if !["all", "favorites", "recent", "gif", "image"].contains(&filter) {
         return Err("Unknown search filter.".into());
     }
@@ -568,6 +624,20 @@ pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeI
         .filter(|term| is_reaction(term))
         .collect();
     let phrase = raw_tokens(query).join(" ");
+    let word_stems: Vec<_> = words.iter().map(|word| stem(word)).collect();
+    let vocabulary: HashSet<_> = items
+        .iter()
+        .filter(|_| !words.is_empty())
+        .flat_map(|item| {
+            tokenize(&format!(
+                "{} {} {}",
+                item.title,
+                item.description,
+                item.tags.join(" ")
+            ))
+        })
+        .collect();
+    let vocabulary_stems: HashSet<_> = vocabulary.iter().map(|word| stem(word)).collect();
     let mut ranked: Vec<(i64, &MemeItem)> = items
         .iter()
         .filter(|item| match filter {
@@ -588,6 +658,14 @@ pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeI
             let title_tokens = tokenize(&item.title);
             let tag_tokens = tokenize(&item.tags.join(" "));
             let body_tokens = tokenize(&item.description);
+            let title_stems: HashSet<_> = title_tokens.iter().map(|word| stem(word)).collect();
+            let tag_stems: HashSet<_> = tag_tokens.iter().map(|word| stem(word)).collect();
+            let body_stems: HashSet<_> = body_tokens.iter().map(|word| stem(word)).collect();
+            let similarity = semantic
+                .get(&item.id)
+                .copied()
+                .filter(|v| v.is_finite())
+                .unwrap_or(0.0);
             let title_concepts: HashSet<_> =
                 title_tokens.iter().map(|word| concept(word)).collect();
             let tag_concepts: HashSet<_> = tag_tokens.iter().map(|word| concept(word)).collect();
@@ -600,6 +678,7 @@ pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeI
             // If a reaction was specified, incidental context like "at work"
             // must not return a different emotion just because "work" matches.
             if !reactions.is_empty()
+                && similarity < 0.3
                 && !reactions.iter().any(|term| {
                     title_concepts.contains(term)
                         || tag_concepts.contains(term)
@@ -618,7 +697,8 @@ pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeI
                 0
             };
             let mut matched = 0;
-            for word in &words {
+            let mut short_reversals = 0;
+            for (word, word_stem) in words.iter().zip(&word_stems) {
                 let meaning = concept(word);
                 let contribution = if tag_tokens.contains(word) {
                     11
@@ -632,10 +712,38 @@ pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeI
                     3
                 } else if body_concepts.contains(meaning) {
                     2
-                } else if word.len() >= 4 && body_tokens.iter().any(|token| token.starts_with(word))
+                } else if tag_stems.contains(word_stem) {
+                    8
+                } else if title_stems.contains(word_stem) {
+                    7
+                } else if body_stems.contains(word_stem) {
+                    3
+                } else if !vocabulary.contains(word)
+                    && !vocabulary_stems.contains(word_stem)
+                    && tag_tokens
+                        .iter()
+                        .chain(&title_tokens)
+                        .any(|token| close_spelling(word, token))
                 {
-                    1
+                    4
+                } else if !vocabulary.contains(word)
+                    && !vocabulary_stems.contains(word_stem)
+                    && body_tokens.iter().any(|token| close_spelling(word, token))
+                {
+                    2
                 } else {
+                    // Whole short-word reversals only receive a tiny bonus
+                    // after two other description words support the candidate.
+                    if word.len() == 3
+                        && word.is_ascii()
+                        && title_tokens
+                            .iter()
+                            .chain(&tag_tokens)
+                            .chain(&body_tokens)
+                            .any(|token| token.len() == 3 && token.bytes().eq(word.bytes().rev()))
+                    {
+                        short_reversals += 1;
+                    }
                     0
                 };
                 score += contribution;
@@ -645,6 +753,21 @@ pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeI
             }
             // Reward covering the situation, not one incidental title word.
             score += matched * 6;
+            if matched >= 2 {
+                score += short_reversals * 2;
+            }
+            if !semantic.is_empty() {
+                let lexical = (score as f32 / (17 * words.len().max(1)) as f32).min(1.0);
+                // Similarity is a retrieval signal, not calibrated confidence.
+                // A modest floor prevents returning a catalog for nonsense.
+                if score == 0 && similarity < 0.25 {
+                    return None;
+                }
+                score = ((similarity.max(0.0) * 80.0 + lexical * 35.0) * 1000.0) as i64;
+                if exact_phrase {
+                    score += 60_000;
+                }
+            }
             if score == 0 {
                 None
             } else {
@@ -772,6 +895,84 @@ mod tests {
                 "{query}"
             );
         }
+    }
+
+    #[test]
+    fn inflections_typos_and_short_reversals_require_descriptive_evidence() {
+        let items = vec![
+            meme(
+                "Cooked Dog",
+                "A brown Labrador dog closing his eyes in sunlight, accepting his fate",
+                &["dog", "closed eyes", "cooked"],
+            ),
+            meme(
+                "This Is Fine",
+                "A dog sitting in a burning room while everything is on fire",
+                &["dog", "fire", "calm"],
+            ),
+            meme(
+                "Divine judgment",
+                "God looks down from heaven judging humanity",
+                &["god", "heaven"],
+            ),
+            meme(
+                "Distracted Boyfriend",
+                "A man looking at another woman as his girlfriend looks annoyed",
+                &["man", "woman", "distracted"],
+            ),
+            meme("Car crash", "A car rolls down a road", &["car", "crash"]),
+        ];
+        for (query, expected) in [
+            ("god eye closed", "Cooked Dog"),
+            ("dogs closing eye", "Cooked Dog"),
+            ("dog eye clsoed", "Cooked Dog"),
+            ("distractde boyfreind", "Distracted Boyfriend"),
+            ("dog in room on fire", "This Is Fine"),
+            ("god judging from heaven", "Divine judgment"),
+            ("god", "Divine judgment"),
+        ] {
+            let results = search(&items, query, "all").unwrap();
+            assert_eq!(
+                results.first().map(|item| item.title.as_str()),
+                Some(expected),
+                "{query}"
+            );
+        }
+        assert!(
+            search(&items, "cat", "all").unwrap().is_empty(),
+            "Short valid words must not become unrelated terms"
+        );
+        assert!(!close_spelling("god", "dog"));
+        assert!(!close_spelling("fire", "finance"));
+        assert!(close_spelling("boyfreind", "boyfriend"));
+    }
+
+    #[test]
+    fn semantic_signals_cannot_override_exclusions_or_literal_names() {
+        let items = vec![
+            meme("Sad Cat", "A disappointed animal", &["sad"]),
+            meme("Happy Cat", "A cheerful animal", &["happy"]),
+        ];
+        let scores = HashMap::from([("Sad Cat".into(), 0.99), ("Happy Cat".into(), 0.6)]);
+        assert_eq!(
+            hybrid_search(&items, "not sad but happy", "all", &scores).unwrap()[0].title,
+            "Happy Cat"
+        );
+        assert!(hybrid_search(&items, "not sad", "all", &scores)
+            .unwrap()
+            .is_empty());
+        assert_eq!(
+            hybrid_search(&items, "Happy Cat", "all", &scores).unwrap()[0].title,
+            "Happy Cat"
+        );
+        assert!(hybrid_search(
+            &items,
+            "unrelated astronaut toaster",
+            "all",
+            &HashMap::from([("Sad Cat".into(), 0.1)])
+        )
+        .unwrap()
+        .is_empty());
     }
 
     #[test]

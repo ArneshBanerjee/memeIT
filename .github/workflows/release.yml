@@ -91,6 +91,8 @@ jobs:
       - run: npm ci
       - name: Build the frontend
         run: npm run build
+      - name: Test description search preview
+        run: npm test
       - name: Test download metadata
         run: npm test --prefix website
       - name: Check Rust formatting
@@ -108,6 +110,9 @@ jobs:
           prerelease: true
           args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
           uploadUpdaterJson: false
+      - name: Verify local semantic retrieval on the native CPU
+        if: matrix.target != 'x86_64-apple-darwin'
+        run: cargo test --release --manifest-path src-tauri/Cargo.toml --locked --target ${{ matrix.target }} actual_model_generalizes_descriptions -- --ignored --nocapture
 
   publish:
     needs: [prepare, build]

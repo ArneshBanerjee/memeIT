@@ -1,6 +1,7 @@
 mod composed;
 mod library;
 mod online;
+mod semantic;
 
 use arboard::{Clipboard, ImageData};
 use base64::{engine::general_purpose::STANDARD, Engine};
@@ -76,14 +77,15 @@ fn bootstrap(state: State<'_, AppState>) -> Result<Bootstrap> {
 }
 
 #[tauri::command]
-fn search_memes(
-    query: String,
-    filter: String,
-    state: State<'_, AppState>,
-) -> Result<Vec<MemeItem>> {
-    with_store(&state, |store| {
-        library::search(&store.library.items, &query, &filter)
+async fn search_memes(query: String, filter: String, app: AppHandle) -> Result<Vec<MemeItem>> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let items = with_store(&app.state::<AppState>(), |store| {
+            Ok(store.library.items.clone())
+        })?;
+        library::search(&items, &query, &filter)
     })
+    .await
+    .map_err(|error| error.to_string())?
 }
 
 #[derive(Serialize)]
@@ -811,7 +813,7 @@ pub fn run() {
             let mut diagnostics = Vec::new();
             if let Err(error) = &clipboard { diagnostics.push(format!("Clipboard is unavailable. You can still search and save files. {error}")); }
             app.manage(AppState { store: Mutex::new(store), clipboard: Mutex::new(clipboard.ok()), diagnostics: Mutex::new(diagnostics) });
-            app.manage(online::OnlineState::new(directory));
+            app.manage(online::OnlineState::new(directory, assets));
             #[cfg(not(target_os = "linux"))]
             let register = true;
             #[cfg(target_os = "linux")]
