@@ -4,7 +4,7 @@ Research checked November 26, 2026. Desktop scope: Windows, macOS, Linux; mobile
 
 ## What makes this useful
 
-The product is a resident reaction picker, not another messaging application. A useful path is shortcut → describe the situation → select → copy → return to the existing conversation. There should be no login wall, conversation ingestion, forced cloud inference, or automatically sent message in that path.
+The product is a resident reaction picker, not another messaging application. A useful path is shortcut → describe the situation → select → copy → return to the existing conversation. There should be no MemeIT login wall, conversation ingestion, forced cloud inference, or automatically sent message in that path. A provider key is currently needed for broad live search.
 
 The biggest engineering risk is media transfer, not displaying a grid. Static clipboard image formats represent pixels. GIF animation requires preserving the original encoded file, and receiving applications disagree on accepting pasted files. Global hotkeys and foreground focus also vary by OS and compositor. These boundaries should be visible in product behavior and validation rather than hidden behind “works everywhere.”
 
@@ -22,9 +22,9 @@ Tenor is unavailable for a new product: its third-party API shut down June 30, 2
 
 KLIPY is a promising candidate for an approved GIF + meme catalog, but testing credentials, production approval, attribution, storage rules, and search-order requirements must be respected. GIPHY imposes similar restrictions, including prohibitions on proxying/caching and reranking. A Vercel proxy does not automatically make those integrations permissible. Provider results should have their own source-labelled surface and retain the provider's order. [KLIPY documentation](https://docs.klipy.com/), [KLIPY terms](https://klipy.com/support/api-terms), [GIPHY best practices](https://developers.giphy.com/docs/#best-practices)
 
-Imgflip's free popular-template list is useful for a generator feature, but mostly exposes templates to caption, not a complete ready-to-send reaction catalog. Avoid passing that off as finished-meme search. [Imgflip API](https://imgflip.com/api)
+Imgflip's free popular-template list exposes recognizable formats to caption, not a complete ready-to-send reaction catalog. Memegen adds classic formats through its public templates API. Both are labelled as formats; neither is presented as every captioned internet meme. [Imgflip API](https://imgflip.com/api)
 
-Therefore this preview uses original CC0 starter reactions plus imports. No production key is embedded; no scraped meme archive is redistributed. To achieve frictionless broad online search, arrange an approved production integration and clarify whether temporary original-file handling for GIF paste is permitted.
+This preview defaults to real internet formats loaded from Imgflip and Memegen. The checked catalogs expose 100 popular Imgflip entries and 209 Memegen formats, with overlap; they are not a comprehensive index. Authored visual/intent metadata makes recognized formats searchable by description. Separate optional KLIPY GIF/meme and Imgflip full-search tabs require keys. No production key or scraped archive is embedded. KLIPY shares links until retained-media/native-file handling is approved. To achieve frictionless broad online search, arrange approved production access.
 
 ## Distribution
 

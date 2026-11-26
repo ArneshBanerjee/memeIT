@@ -122,11 +122,11 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           mkdir -p release-assets
-          gh release download "$RELEASE_TAG" --dir release-assets --pattern '*.dmg' --pattern '*.exe' --pattern '*.msi' --pattern '*.AppImage' --pattern '*.deb'
+          gh release download "$RELEASE_TAG" --dir release-assets
           python3 - <<'PY'
           import hashlib, pathlib
           folder = pathlib.Path('release-assets')
-          files = sorted(path for path in folder.iterdir() if path.is_file())
+          files = sorted(path for path in folder.iterdir() if path.is_file() and path.name != 'SHA256SUMS.txt')
           names = [path.name for path in files]
           required = [lambda n: n.endswith('_aarch64.dmg'), lambda n: n.endswith('_x64.dmg'), lambda n: n.endswith('_x64-setup.exe'), lambda n: n.endswith('.msi'), lambda n: n.endswith('.AppImage'), lambda n: n.endswith('.deb')]
           assert all(any(check(name) for name in names) for check in required), f'Missing expected installer: {names}'

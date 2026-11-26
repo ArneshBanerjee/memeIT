@@ -17,6 +17,14 @@ Linux uses Ubuntu 22.04 as the build baseline with WebKitGTK 4.1. ARM Linux and 
 
 macOS previews are ad-hoc signed and are **not notarized**. Windows previews are **unsigned**. Operating systems may warn about or block these builds. Do not describe them as signed, trusted production downloads. The workflow deliberately publishes prereleases, including `v0.1.0`.
 
+## Catalog access contract
+
+The product searches **popular internet memes**, not an original replacement sticker pack. Its default image catalog loads popular formats from Imgflip and Memegen and adds descriptive search metadata for recognizable reactions. This catalog is available without a provider key, but loading online catalogs and media requires network access. Imported local files remain a secondary source.
+
+Broader KLIPY GIF and meme search requires a configured API key. A test key is restricted to development limits; production access requires provider approval. Imgflip full-database search is a separate optional service requiring an API Premium subscription and key. Neither service is represented as preconfigured in the public app. Do not describe the top/popular catalogs as the full internet or promise that literally every meme is available.
+
+Provider content keeps its source attribution and follows provider delivery, ordering and caching rules. KLIPY results must remain separate from other providers, preserving the returned order. KLIPY sharing currently copies the provider link. Direct file retention/sharing is deferred pending provider authorization; an automatic downloader or durable local mirror is not part of the standard integration. Imgflip/Memegen images and local imported GIFs can use the app’s media/file-copy paths. Secrets must never be committed to the public repository.
+
 ## Publish a preview
 
 1. Update the version in `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`, and the root `package.json` together. Update lockfiles with the appropriate package manager. Keep `.github/RELEASE_NOTES.md` accurate for that release.
@@ -33,11 +41,13 @@ If any target fails, the release remains a draft and is not presented as a downl
 ## Installer checks
 
 - Install and launch from a downloaded file on a clean target OS.
-- Verify starter assets render and animate; search works without network access.
+- Without provider keys, verify live Imgflip/Memegen popular formats load and recognizable names/descriptions find real internet memes. Confirm source attribution and links are visible.
+- Test provider failure and offline states: no fake or custom fallback content should masquerade as internet search results. Imported local media should remain accessible offline.
+- With separately configured provider credentials, test broad image/GIF search, authentication errors, quota errors and missing-key setup. Validate KLIPY attribution, result order, separated presentation, and the approved media-delivery behavior before enabling production access.
 - Invoke Cmd/Ctrl + Shift + M from another app. If a Linux compositor blocks the shortcut, confirm opening via app or tray still works.
 - Import PNG/JPEG/GIF, search its description/tags, add a favorite, restart, and confirm persistence.
 - Copy a static image into a compatible chat app; confirm it is an image, not a local path.
-- Copy an animated GIF file, paste into supported chat apps, and confirm animation survives. Record unsupported applications and verify save/attach fallback.
+- Copy an imported animated GIF file, paste into supported chat apps, and confirm animation survives. Record unsupported applications and verify save/attach fallback. Confirm KLIPY results copy a provider link without downloading or retaining the media file.
 - Confirm selecting a reaction never sends a message automatically.
 - Confirm Escape dismisses the picker and the normal close/tray/quit behavior is understandable.
 
@@ -63,4 +73,4 @@ Optional Vercel environment variable: `GITHUB_TOKEN`, a read-only credential wit
 
 Test the endpoint with `npm test --prefix website`. A plain local static server can preview the layout, but cannot run Vercel functions; in that case the site correctly displays its GitHub fallback. Use `vercel dev` or an actual deployment to test the live release endpoint. Use `vercel --prod` or the connected production branch to publish after checking the selected account and project.
 
-The website currently sets a restrictive Content Security Policy and does not load trackers, remote fonts, or third-party scripts. If adding integrations, keep the privacy claim accurate.
+The website sets a restrictive Content Security Policy and does not add trackers, remote fonts, or third-party scripts. Its hero displays three authentic popular meme images loaded directly from `i.imgflip.com` and provides an Imgflip hyperlink as required by the provider's [hotlinking terms](https://imgflip.com/terms). Those image requests contact Imgflip. The small interactive website demo searches only its three labelled sample formats; it is not the full application catalog. The source code licence does not relicense third-party meme artwork. Keep both the privacy and catalog descriptions accurate as providers change.

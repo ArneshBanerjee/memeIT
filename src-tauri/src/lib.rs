@@ -1,4 +1,6 @@
+mod composed;
 mod library;
+mod online;
 
 use arboard::{Clipboard, ImageData};
 use base64::{engine::general_purpose::STANDARD, Engine};
@@ -100,6 +102,9 @@ async fn get_media(id: String, app: AppHandle) -> Result<Media> {
         if metadata.len() > library::MAX_FILE_BYTES {
             return Err("Media exceeds the 20 MB limit.".into());
         }
+        if library::inspect_media(&path)? != kind {
+            return Err("The media file has changed. Import it again.".into());
+        }
         if kind == "gif" {
             let bytes = fs::read(&path).map_err(|e| e.to_string())?;
             return Ok(Media {
@@ -107,7 +112,6 @@ async fn get_media(id: String, app: AppHandle) -> Result<Media> {
                 original: None,
             });
         }
-        library::inspect_media(&path)?;
         let image = image::open(path)
             .map_err(|e| format!("Cannot display image: {e}"))?
             .thumbnail(720, 720);
@@ -125,6 +129,336 @@ async fn get_media(id: String, app: AppHandle) -> Result<Media> {
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn search_online(
+    query: String,
+    provider: String,
+    page: Option<u32>,
+    app: AppHandle,
+) -> Result<online::SearchResponse> {
+    tauri::async_runtime::spawn_blocking(move || {
+        app.state::<online::OnlineState>()
+            .search(&query, &provider, page.unwrap_or(1))
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PreparedTemplate {
+    data_url: String,
+    width: u32,
+    height: u32,
+    title: String,
+}
+
+#[tauri::command]
+async fn prepare_template(id: String, app: AppHandle) -> Result<PreparedTemplate> {
+    tauri::async_runtime::spawn_blocking(move || -> Result<PreparedTemplate> {
+        let provider = app.state::<online::OnlineState>();
+        let item = provider.item(&id)?;
+        if !item.is_template || !["imgflip", "memegen"].contains(&item.provider.as_str()) {
+            return Err("The editor supports Imgflip and Memegen templates.".into());
+        }
+        if item.kind == "gif" {
+            return Err(
+                "GIF template editing is not supported yet. Choose a static image template.".into(),
+            );
+        }
+        let original = provider.download(&item)?;
+        if library::inspect_media(original.path())? == "gif" {
+            return Err(
+                "GIF template editing is not supported yet. Choose a static image template.".into(),
+            );
+        }
+        let image = image::ImageReader::open(original.path())
+            .map_err(|_| "Could not read template.")?
+            .with_guessed_format()
+            .map_err(|_| "Could not identify template.")?
+            .decode()
+            .map_err(|_| "Could not decode template.")?
+            .thumbnail(1600, 1600);
+        let (width, height) = (image.width(), image.height());
+        let mut bytes = Cursor::new(Vec::new());
+        image
+            .write_to(&mut bytes, image::ImageFormat::Png)
+            .map_err(|_| "Could not prepare template.")?;
+        Ok(PreparedTemplate {
+            data_url: format!(
+                "data:image/png;base64,{}",
+                STANDARD.encode(bytes.into_inner())
+            ),
+            width,
+            height,
+            title: item.title,
+        })
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn copy_composed(data_url: String, hide_after: bool, app: AppHandle) -> Result<CopyResult> {
+    let copy_app = app.clone();
+    tauri::async_runtime::spawn_blocking(move || -> Result<()> {
+        let (_, image) = composed::decode(&data_url)?;
+        let image = image.to_rgba8();
+        let state = copy_app.state::<AppState>();
+        let mut owner = state
+            .clipboard
+            .lock()
+            .map_err(|_| "Clipboard is unavailable.")?;
+        if owner.is_none() {
+            *owner = Some(
+                Clipboard::new()
+                    .map_err(|_| "Clipboard is unavailable. Use Save image instead.")?,
+            );
+        }
+        owner
+            .as_mut()
+            .ok_or("Clipboard is unavailable.")?
+            .set_image(ImageData {
+                width: image.width() as usize,
+                height: image.height() as usize,
+                bytes: Cow::Owned(image.into_raw()),
+            })
+            .map_err(|_| "Could not copy the composed image. Use Save image instead.")?;
+        Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())??;
+    if hide_after {
+        if let Some(window) = app.get_webview_window("main") {
+            let _ = window.hide();
+        }
+    }
+    Ok(CopyResult {
+        message: "Your meme is copied. Paste the image into your conversation.".into(),
+    })
+}
+
+#[tauri::command]
+async fn save_composed(data_url: String) -> Result<bool> {
+    let bytes = tauri::async_runtime::spawn_blocking(move || {
+        composed::decode(&data_url).map(|(bytes, _)| bytes)
+    })
+    .await
+    .map_err(|e| e.to_string())??;
+    let destination = rfd::AsyncFileDialog::new()
+        .set_title("Save your meme")
+        .set_file_name("memeit-meme.png")
+        .add_filter("PNG image", &["png"])
+        .save_file()
+        .await;
+    let Some(destination) = destination else {
+        return Ok(false);
+    };
+    let destination = destination.path().to_path_buf();
+    tauri::async_runtime::spawn_blocking(move || -> Result<bool> {
+        let parent = destination.parent().ok_or("Invalid save destination.")?;
+        let mut file = tempfile::NamedTempFile::new_in(parent)
+            .map_err(|_| "Could not create the image file.")?;
+        use std::io::Write;
+        file.write_all(&bytes)
+            .map_err(|_| "Could not write the image file.")?;
+        file.as_file()
+            .sync_all()
+            .map_err(|_| "Could not finish saving the image.")?;
+        file.persist(destination)
+            .map_err(|_| "Could not save the image to the selected location.")?;
+        Ok(true)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+fn provider_config(state: State<'_, online::OnlineState>) -> Result<online::ProviderConfig> {
+    state.config()
+}
+
+#[tauri::command]
+fn set_provider_key(
+    provider: String,
+    key: String,
+    state: State<'_, online::OnlineState>,
+) -> Result<online::ProviderConfig> {
+    state.set_key(&provider, key)
+}
+
+fn cache_online_item(app: &AppHandle, id: &str) -> Result<MemeItem> {
+    let online = app.state::<online::OnlineState>();
+    let item = online.item(id)?;
+    if item.provider.starts_with("klipy") {
+        return Err("KLIPY media cannot be saved to the local library without an approved provider integration. Use Copy link.".into());
+    }
+    let local_id = format!("internet-{}", item.id.replace(':', "-"));
+    let existing = with_store(&app.state::<AppState>(), |store| {
+        Ok(store
+            .library
+            .items
+            .iter()
+            .find(|meme| meme.id == local_id)
+            .filter(|meme| store.media_path(&meme.id).is_ok())
+            .cloned())
+    })?;
+    if let Some(existing) = existing {
+        return Ok(existing);
+    }
+    let downloaded = online.download(&item)?;
+    let kind = library::inspect_media(downloaded.path())?;
+    let filename = format!("{local_id}.{kind}");
+    if !library::valid_filename(&filename) {
+        return Err("The provider's media ID is too long to save safely.".into());
+    }
+    with_store(&app.state::<AppState>(), |store| {
+        let destination = store.directory.join("media").join(&filename);
+        // Atomic replacement also replaces a malicious symlink itself, never its target.
+        let mut staged = tempfile::NamedTempFile::new_in(store.directory.join("media"))
+            .map_err(|_| "Could not save the meme to your library.")?;
+        std::io::copy(
+            &mut fs::File::open(downloaded.path())
+                .map_err(|_| "Could not read downloaded media.")?,
+            &mut staged,
+        )
+        .map_err(|_| "Could not save the meme to your library.")?;
+        staged
+            .as_file()
+            .sync_all()
+            .map_err(|_| "Could not save the meme to your library.")?;
+        staged
+            .persist(&destination)
+            .map_err(|_| "Could not save the meme to your library.")?;
+        let meme = MemeItem {
+            id: local_id.clone(),
+            title: item.title,
+            description: format!("{}\n\nSource: {}", item.description, item.source_url),
+            tags: item.tags,
+            filename,
+            kind,
+            favorite: false,
+            last_used: None,
+        };
+        let update = store.mutate(|library| {
+            if let Some(existing) = library.items.iter_mut().find(|item| item.id == local_id) {
+                // Repair a missing cached file without losing the user's edits.
+                existing.filename = meme.filename.clone();
+                existing.kind = meme.kind.clone();
+                Ok(existing.clone())
+            } else {
+                library.items.push(meme.clone());
+                Ok(meme)
+            }
+        });
+        if update.is_err() {
+            let _ = fs::remove_file(destination);
+        }
+        update
+    })
+}
+
+#[tauri::command]
+async fn add_online_to_library(id: String, app: AppHandle) -> Result<MemeItem> {
+    tauri::async_runtime::spawn_blocking(move || cache_online_item(&app, &id))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn copy_online(
+    id: String,
+    mode: String,
+    hide_after: bool,
+    app: AppHandle,
+) -> Result<CopyResult> {
+    if mode == "link" {
+        let copy_app = app.clone();
+        tauri::async_runtime::spawn_blocking(move || -> Result<()> {
+            let item = copy_app.state::<online::OnlineState>().item(&id)?;
+            let state = copy_app.state::<AppState>();
+            let mut clipboard = state
+                .clipboard
+                .lock()
+                .map_err(|_| "Clipboard is unavailable.")?;
+            if clipboard.is_none() {
+                *clipboard = Some(
+                    Clipboard::new().map_err(|_| "Clipboard is unavailable on this desktop.")?,
+                );
+            }
+            clipboard
+                .as_mut()
+                .ok_or("Clipboard is unavailable.")?
+                .set_text(item.media_url)
+                .map_err(|_| "Could not copy the media link.")?;
+            Ok(())
+        })
+        .await
+        .map_err(|e| e.to_string())??;
+        if hide_after {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.hide();
+            }
+        }
+        return Ok(CopyResult {
+            message: "Media link copied. Paste it into your conversation.".into(),
+        });
+    }
+    if mode != "image" && mode != "file" {
+        return Err("Unknown copy mode.".into());
+    }
+    let cache_app = app.clone();
+    let local = tauri::async_runtime::spawn_blocking(move || cache_online_item(&cache_app, &id))
+        .await
+        .map_err(|e| e.to_string())??;
+    // Detect actual downloaded format; preserve GIF even if the provider URL has no extension.
+    let mode = if local.kind == "gif" {
+        "file".into()
+    } else {
+        mode
+    };
+    copy_meme(local.id, mode, hide_after, app).await
+}
+
+#[tauri::command]
+async fn save_online(id: String, app: AppHandle) -> Result<bool> {
+    let cache_app = app.clone();
+    let local = tauri::async_runtime::spawn_blocking(move || cache_online_item(&cache_app, &id))
+        .await
+        .map_err(|e| e.to_string())??;
+    export_meme(local.id, app).await
+}
+
+#[tauri::command]
+fn open_online_source(id: String, state: State<'_, online::OnlineState>) -> Result<()> {
+    let item = state.item(&id)?;
+    let url = online::checked_source(&item.source_url)?;
+    open::that_detached(url.as_str())
+        .map_err(|_| "Could not open the source in your browser.".into())
+}
+
+#[tauri::command]
+fn open_provider_page(provider: String) -> Result<()> {
+    let url = match provider.as_str() {
+        "imgflip" => "https://imgflip.com/api-settings",
+        "klipy" => "https://klipy.com/developers",
+        "memegen" => "https://memegen.link/",
+        _ => return Err("Unknown provider.".into()),
+    };
+    open::that_detached(url).map_err(|_| "Could not open the provider page in your browser.".into())
+}
+
+#[tauri::command]
+fn open_provider_home(provider: String) -> Result<()> {
+    let url = match provider.as_str() {
+        "imgflip" => "https://imgflip.com",
+        "klipy" => "https://klipy.com",
+        "memegen" => "https://memegen.link",
+        _ => return Err("Unknown provider.".into()),
+    };
+    open::that_detached(url).map_err(|_| "Could not open the provider in your browser.".into())
 }
 
 #[tauri::command]
@@ -222,7 +556,9 @@ async fn copy_meme(
         let (path, kind) = with_store(&state, |store| {
             Ok((store.media_path(&id)?, store.item(&id)?.kind.clone()))
         })?;
-        library::inspect_media(&path)?;
+        if library::inspect_media(&path)? != kind {
+            return Err("The media file has changed. Import it again.".into());
+        }
         if mode != "image" && mode != "file" {
             return Err("Unknown copy mode.".into());
         }
@@ -469,12 +805,13 @@ pub fn run() {
             let assets = if cfg!(debug_assertions) && !assets.join("catalog.json").exists() {
                 std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../assets")
             } else { assets };
-            let store = LibraryStore::load(directory, &assets);
+            let store = LibraryStore::load(directory.clone(), &assets);
             let shortcut = store.as_ref().map(|store| store.library.shortcut.clone()).unwrap_or_else(|_| DEFAULT_SHORTCUT.into());
             let clipboard = Clipboard::new();
             let mut diagnostics = Vec::new();
             if let Err(error) = &clipboard { diagnostics.push(format!("Clipboard is unavailable. You can still search and save files. {error}")); }
             app.manage(AppState { store: Mutex::new(store), clipboard: Mutex::new(clipboard.ok()), diagnostics: Mutex::new(diagnostics) });
+            app.manage(online::OnlineState::new(directory));
             #[cfg(not(target_os = "linux"))]
             let register = true;
             #[cfg(target_os = "linux")]
@@ -494,7 +831,7 @@ pub fn run() {
                 let _ = window.hide();
             }
         })
-        .invoke_handler(tauri::generate_handler![bootstrap, search_memes, get_media, import_memes, update_meme, toggle_favorite, copy_meme, export_meme, hide_window, set_shortcut])
+        .invoke_handler(tauri::generate_handler![bootstrap, search_memes, get_media, import_memes, update_meme, toggle_favorite, copy_meme, export_meme, hide_window, set_shortcut, search_online, provider_config, set_provider_key, copy_online, save_online, add_online_to_library, open_online_source, open_provider_page, open_provider_home, prepare_template, copy_composed, save_composed])
         .build(tauri::generate_context!())
         .expect("MemeIT could not start")
         .run(|_app, _event| {

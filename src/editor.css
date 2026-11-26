@@ -1,0 +1,447 @@
+.te-dialog {
+  color-scheme: dark;
+  width: min(900px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(92vh, calc(100vh - 32px));
+  padding: 0;
+  border: 1px solid #4c583d;
+  border-radius: 18px;
+  background: #1c2118;
+  color: #eef3e7;
+  box-shadow: 0 28px 110px #000b;
+  overflow: hidden;
+}
+.te-dialog::backdrop {
+  background: #080c08cf;
+  backdrop-filter: blur(7px);
+}
+.te-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.te-dialog .te-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-shrink: 0;
+  padding: 23px 26px 18px;
+  border-bottom: 1px solid #39432e;
+  background: #20261b;
+}
+.te-dialog .te-eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.7px;
+  font-weight: 700;
+  color: #c7e997;
+  margin: 0;
+}
+.te-dialog h2 {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.7px;
+  margin: 7px 0 2px;
+  line-height: 1.2;
+}
+.te-dialog #te-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #aab89a;
+  margin: 5px 0 0;
+}
+.te-dialog .te-close {
+  height: 35px;
+  width: 35px;
+  border: 1px solid #47553a;
+  border-radius: 9px;
+  background: #2a3222;
+  color: #dce8cc;
+  font-size: 25px;
+  line-height: 1;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.te-dialog .te-close:hover {
+  background: #3a472d;
+}
+.te-dialog .te-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  min-height: 0;
+  overflow: hidden;
+}
+.te-dialog .te-preview {
+  padding: 23px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  justify-content: center;
+  background: #141910;
+}
+.te-dialog .te-stage {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  flex: 1;
+  background: repeating-conic-gradient(#1c2316 0% 25%, #192013 0% 50%) 50%/24px
+    24px;
+  border: 1px solid #313c25;
+  border-radius: 9px;
+}
+.te-dialog #te-canvas {
+  max-width: 100%;
+  max-height: min(57vh, 640px);
+  width: auto;
+  height: auto;
+  display: block;
+  touch-action: none;
+  cursor: move;
+  object-fit: contain;
+}
+.te-dialog #te-canvas:not([width]) {
+  display: none;
+}
+.te-dialog .te-loading {
+  position: absolute;
+  margin: 0;
+  padding: 28px;
+  max-width: 410px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #b3c39f;
+}
+.te-dialog .te-preview-help {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #92a27e;
+  margin: 13px 0 0;
+  text-align: center;
+  flex-shrink: 0;
+}
+.te-dialog .te-controls {
+  padding: 22px 22px 17px;
+  overflow: auto;
+  border-left: 1px solid #36432b;
+  min-height: 0;
+  max-height: 65vh;
+  background: #20261a;
+  scrollbar-color: #55663d transparent;
+}
+.te-dialog .te-section-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+.te-dialog .te-section-label strong {
+  font-size: 14px;
+}
+.te-dialog .te-text-button {
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+  padding: 3px 0;
+  color: #c9eaa0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.te-dialog .te-layer-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+.te-dialog .te-layer-tab {
+  background: #293321;
+  border: 1px solid #435435;
+  border-radius: 6px;
+  color: #b4c99b;
+  font-size: 12px;
+  padding: 6px 9px;
+  cursor: pointer;
+}
+.te-dialog .te-layer-tab.active {
+  background: #cceb9b;
+  color: #263b12;
+  border-color: #cceb9b;
+  font-weight: 650;
+}
+.te-dialog .te-field {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #c5d3b5;
+}
+.te-dialog .te-field textarea {
+  resize: vertical;
+  min-height: 85px;
+  max-height: 180px;
+  background: #151d10;
+  border: 1px solid #4d603b;
+  border-radius: 7px;
+  color: #f2f7ea;
+  font-size: 15px;
+  padding: 11px;
+  line-height: 1.45;
+  font-family: inherit;
+  width: 100%;
+  margin: 0;
+}
+.te-dialog .te-field textarea::placeholder {
+  color: #768965;
+}
+.te-dialog .te-slider-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 18px;
+}
+.te-dialog .te-field output {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 400;
+  color: #95ad7c;
+}
+.te-dialog .te-field input[type="range"] {
+  width: 100%;
+  padding: 0;
+  height: 18px;
+  margin: 0;
+  accent-color: #cdeb9f;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.te-dialog .te-color {
+  display: flex;
+  gap: 17px;
+  flex-wrap: wrap;
+  padding: 0;
+  border: 0;
+  margin: 18px 0 0;
+}
+.te-dialog .te-color legend {
+  font-size: 12px;
+  color: #c5d3b5;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 0;
+}
+.te-dialog .te-color label {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 400;
+  color: #c5d3b5;
+}
+.te-dialog .te-color input {
+  accent-color: #cdeb9f;
+  margin: 0;
+  width: 14px;
+  height: 14px;
+}
+.te-dialog .te-swatch {
+  height: 12px;
+  width: 12px;
+  border: 1px solid #81946a;
+  border-radius: 3px;
+  display: inline-block;
+}
+.te-dialog .te-white {
+  background: #fff;
+}
+.te-dialog .te-black {
+  background: #111;
+}
+.te-dialog .te-toggles {
+  display: flex;
+  gap: 16px;
+  margin: 15px 0 0;
+  flex-wrap: wrap;
+}
+.te-dialog .te-toggles label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #b7cba0;
+}
+.te-dialog .te-toggles input {
+  accent-color: #cdeb9f;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+}
+.te-dialog .te-remove {
+  color: #b5bda8;
+  margin-top: 16px;
+}
+.te-dialog .te-local-note {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #90a17d;
+  margin: 19px 0 0;
+  border-top: 1px solid #3b4b2d;
+  padding-top: 13px;
+}
+.te-dialog .te-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px 23px;
+  background: #252e1d;
+  border-top: 1px solid #435435;
+  flex-shrink: 0;
+}
+.te-dialog .te-footer > div {
+  display: flex;
+  gap: 9px;
+  flex-shrink: 0;
+}
+.te-dialog #te-status {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b2c59b;
+  margin: 0;
+  max-width: 500px;
+}
+.te-dialog .te-button {
+  padding: 10px 17px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 41px;
+}
+.te-dialog .te-primary {
+  background: #cceb9b;
+  border: 1px solid #cceb9b;
+  color: #24360f;
+}
+.te-dialog .te-secondary {
+  background: #303d24;
+  border: 1px solid #586d42;
+  color: #d4e8bb;
+}
+.te-dialog .te-button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.te-dialog input:focus-visible,
+.te-dialog button:focus-visible,
+.te-dialog textarea:focus-visible,
+.te-dialog canvas:focus-visible {
+  outline: 2px solid #d3f79d;
+  outline-offset: 3px;
+}
+.te-dialog button:disabled,
+.te-dialog input:disabled,
+.te-dialog textarea:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.te-dialog .te-error {
+  color: #ffc4af !important;
+}
+.te-dialog [hidden] {
+  display: none !important;
+}
+@media (max-width: 800px) {
+  .te-dialog {
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+  }
+  .te-dialog .te-body {
+    grid-template-columns: minmax(0, 1fr) 270px;
+  }
+  .te-dialog .te-header {
+    padding: 18px;
+  }
+  .te-dialog .te-preview {
+    padding: 14px;
+  }
+  .te-dialog .te-controls {
+    padding: 18px 16px;
+  }
+  .te-dialog .te-footer {
+    padding: 14px 17px;
+    gap: 12px;
+  }
+  .te-dialog #te-status {
+    font-size: 12px;
+  }
+  .te-dialog .te-button {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 620px) {
+  .te-dialog .te-body {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+    display: block;
+  }
+  .te-dialog .te-preview {
+    min-height: 220px;
+  }
+  .te-dialog .te-stage {
+    min-height: 180px;
+  }
+  .te-dialog #te-canvas {
+    max-height: 38vh;
+  }
+  .te-dialog .te-controls {
+    max-height: none;
+    overflow: visible;
+    border-left: 0;
+    border-top: 1px solid #36432b;
+  }
+  .te-dialog .te-layer-tabs {
+    margin-bottom: 13px;
+  }
+  .te-dialog .te-footer {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .te-dialog .te-footer > div {
+    margin-left: auto;
+  }
+  .te-dialog #te-status {
+    max-width: none;
+    flex: 1;
+    min-width: 160px;
+  }
+  .te-dialog h2 {
+    font-size: 23px;
+  }
+  .te-dialog .te-eyebrow {
+    font-size: 9px;
+  }
+  .te-dialog .te-preview-help {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .te-dialog * {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}

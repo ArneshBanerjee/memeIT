@@ -6,22 +6,35 @@ actually implements. Provider policies can change; recheck before integrating.
 
 ## Decision for the first release
 
-Ship a useful offline experience: 18 original, CC0 reaction images/GIFs plus the
-user's imported library. Search authored descriptions, titles, and tags using
-Rust text normalization, token matching, and a bounded synonym vocabulary. Call
-this **description search**, not general AI vision or embedding search. It can
-match a conversational situation when that intent is represented in the
-metadata; it cannot understand every sentence or infer an imported image's
-meaning from pixels.
+Open directly into **real internet meme discovery** using Imgflip and Memegen's
+public catalogs. The checked responses contained **100 Imgflip entries and 209
+Memegen entries**; the same format can occur in both sources. Selected verified
+classics may supplement the changing popular list. These are recognizable meme
+formats such as This Is Fine, Distracted Boyfriend, Drake, and Surprised Pikachu,
+not a claim to cover every internet meme. Catalog entries are labeled as
+templates; they are not a feed of every captioned post.
 
-Provide optional, explicitly labeled **Imgflip templates** independently of the
-personal library. Templates are blank captioning inputs, not finished reaction
-memes. Keep the main workflow useful without a key, account, or network.
+Search their names, visual descriptions, intent descriptions, and tags in Rust.
+[`../assets/internet-metadata.json`](../assets/internet-metadata.json) contains
+311 original annotations keyed by exact `{source, id}`: the 309 observed provider
+entries and two independently verified Imgflip classics. Each record contains
+`source`, `id`, `description`, and `tags`; it contains no copied artwork. Visual
+queries such as "dog in a burning room" and "man distracted by another woman"
+can match without knowing the meme's name.
 
-There is no verified unrestricted, reliable, no-key API for a comprehensive
-finished-meme catalog in the sources investigated. An unauthenticated endpoint
-or public image URL does not itself grant rights to redistribute a dataset.
-Do not scrape a catalog and label its media as MIT-licensed app assets.
+The matching engine uses token normalization, weighted phrase and keyword
+matches, reaction synonyms, and limited handling of negated emotion words.
+This is **description search**, not general AI vision or embedding search. It
+cannot infer the contents of an arbitrary imported image or understand every
+possible sentence. A local imported library remains available separately.
+
+Optional authenticated providers expand coverage: **Imgflip API Premium**
+searches its full template database; **KLIPY** searches GIFs and captioned memes
+in separate source views. The latter preserves provider ranking and uses
+**Copy link**, without downloading or persisting provider media. Credentials
+are supplied explicitly, kept for the session, and never published in the OSS
+repository. A broad out-of-box KLIPY experience needs a developer-owned,
+approved production integration.
 
 ## Provider comparison
 
@@ -45,11 +58,11 @@ guidance requires direct delivery, unchanged URLs, and preserved result order;
 custom proxy/cache integrations require prior approval. Attribution and
 available creator/source details must be displayed.
 
-Recommendation: evaluate KLIPY for a later, separate provider tab with approved
-production access. Do not put its responses through a Vercel proxy, merge them
-into a local index, or rerank the result grid under the default agreement.
-Clarify permitted temporary-file handling for native clipboard and drag-out
-before promising downloaded GIF sharing.
+Implementation boundary: separate optional provider views make direct client
+requests with the user's configured app key. Preserve the response order and
+original delivery URLs. Do not use a Vercel proxy or merge results into a local
+index. Copy links only; temporary media files for native copying or drag-out
+require clarification and approval of that integration with KLIPY first.
 
 Sources: [KLIPY documentation](https://docs.klipy.com/),
 [API terms](https://klipy.com/support/api-terms),
@@ -72,7 +85,7 @@ file-size limits. Temporary files for clipboard export also need policy review.
 Sources: [GIPHY developer docs](https://developers.giphy.com/docs/),
 [GIPHY developer FAQ](https://developers.giphy.com/faq).
 
-### Imgflip: useful templates, different from finished-meme retrieval
+### Imgflip: popular formats now, full template search with credentials
 
 `GET https://api.imgflip.com/get_memes` is documented with an unauthenticated
 example and returns popular user-uploaded templates, approximately 100 at the
@@ -84,12 +97,33 @@ every conversation.
 
 Hotlinked images require a link to Imgflip or the corresponding image page.
 Keep a visible source link and do not represent this catalog as CC0 artwork.
-Do not expose an authenticated creator's bearer key in an OSS repository or
-ship paid generation silently. The initial integration should label results
-as templates and remain optional.
+The public catalog works without a key; full search is an explicit paid API
+option with a session-scoped key. Label both as templates. Do not publish the
+bearer key or perform paid generation silently.
 
 Sources: [Imgflip API](https://imgflip.com/api),
 [Imgflip terms](https://imgflip.com/terms).
+
+### Memegen: a second public catalog of established meme formats
+
+The documented `GET https://api.memegen.link/templates` endpoint provides IDs,
+names, aliases/keywords, blank image URLs, provider example URLs, and source
+links. The checked response had 209 entries. The service supports PNG, JPEG,
+GIF, and WebP generation; animation depends on the chosen background/format.
+MemeIT uses the public catalog and its image URLs, with visible source labels.
+Its source code is MIT-licensed, which should not be represented as a new
+blanket copyright license for every underlying photo or film still. Keep
+provider imagery separate from the application's software and icon licenses.
+
+Sources: [Memegen API catalog](https://api.memegen.link/templates),
+[official project documentation](https://github.com/jacebrowning/memegen),
+[software license](https://github.com/jacebrowning/memegen/blob/main/LICENSE.txt).
+
+Additional verified format references:
+[Math Lady / Confused Lady, Imgflip ID 80996545](https://imgflip.com/memetemplate/80996545/Math-ladyConfused-lady),
+[Success Kid, Imgflip ID 61544](https://imgflip.com/memetemplate/Success-Kid).
+Their inclusion in the annotation file does not imply that a provider's
+changing popular feed currently returns them.
 
 ### Wikimedia Commons: licensed media, not a reaction-meme replacement
 
@@ -167,20 +201,23 @@ ranking should be distinct components so policies can be enforced correctly.
 
 ## Practical seamlessness requirements
 
-- Open with the last useful view immediately; search must not wait for a model
-  download or provider account setup.
+- Open with public meme catalogs without requiring provider account setup.
+  Cache supported catalog metadata for repeat launches and explain when
+  internet access is still needed to load the actual media.
 - Keep keyboard focus in search, support predictable result navigation, and
   confirm whether the action copied an image, a file, or a link.
 - Preserve original animation when sharing a GIF. A static clipboard bitmap
   is not equivalent to an animated GIF attachment.
 - Cancel stale searches, debounce remote requests, and show quota/network
-  failures without erasing the offline library.
+  failures without erasing the imported local library.
 - Keep favorites and recents local, and store provider references only when
   the provider's policy permits it. Never assume an online favorite grants
   permission to archive the underlying media.
-- Keep software licensing, starter-art licensing, imported-file ownership,
+- Keep software licensing, app-icon licensing, imported-file ownership,
   and provider-content terms separate.
 
-The starter pack's source, catalog, CC0 dedication, and hash manifest live in
-[`../assets/`](../assets/). None of the future embedding, vision, or approved
-online-provider capabilities described here should be inferred to be shipped.
+The application icon's CC0 dedication applies to the icon, not to internet
+meme images. Future embedding and image-recognition capabilities described in
+this document should not be inferred to be shipped. Credential-gated providers
+must remain clearly marked as requiring configuration; compiled support is not
+evidence that a provider-approved production key has been obtained.

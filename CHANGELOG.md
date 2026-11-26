@@ -2,8 +2,10 @@
 
 ## 0.1.0 — Initial preview
 
-- Rust/Tauri desktop picker with keyboard search and native clipboard integration.
-- Local image/GIF imports, editable descriptions, favorites, and recents.
-- Original CC0 reaction starter pack.
-- Windows, macOS, and Linux release workflow and a Vercel download website.
-- Baseline local description search; general embedding search and approved online catalogs remain future work.
+- Rust/Tauri desktop picker for real popular internet meme formats from live Imgflip and Memegen catalogs.
+- Description metadata and intent search, plus optional credentialed KLIPY GIF/meme and full Imgflip search.
+- On-device template caption editor with movable text layers, styling, PNG copy, and save.
+- Native image copying/saving, original local GIF file copying, and provider-aware link sharing.
+- Local imports, editable descriptions, favorites, recents, global shortcut, tray, and single instance.
+- Windows, macOS, and Linux release workflow and Vercel download website.
+- Broad provider access requires credentials; general embedding search and trusted installer signing remain follow-up work.

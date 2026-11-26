@@ -6,6 +6,8 @@ Researched against official project documentation on 26 November 2026. These are
 
 Use a public GitHub repository, native GitHub Actions runners, GitHub Releases for immutable versioned installers, and Vercel for a small public product/download website. Tauri 2 handles OS-native packaging around the Rust application and local web UI. Keeping website hosting separate from desktop binary distribution avoids serving large installers through a serverless function.
 
+The product promise is quick access to recognizable **internet memes**, rather than a bundled original reaction pack. Release notes and website screenshots must reflect the real catalog. Default access uses popular Imgflip/Memegen formats with descriptive metadata; broad optional services have separate key, pricing and production-access requirements. A public binary must clearly distinguish its no-key popular catalog from any optional full-provider search that has not been configured.
+
 ### Cross-platform builds
 
 Tauri's official Actions recipe supports macOS arm64/x64, Windows x64 and Linux x64/arm64. Native runners are preferable to manually configuring platform SDK cross-compilation. MemeIT's initial release matrix covers macOS arm64/x64, Windows x64 and Linux x64. ARM Linux can be added when it has a tested runtime support matrix. [Tauri GitHub pipeline](https://v2.tauri.app/distribute/pipelines/github/)
@@ -36,10 +38,12 @@ GitHub unauthenticated REST requests have a shared source-IP limit of 60 per hou
 
 Vercel connects the website subdirectory to a project with `main` as production branch and PR previews for review. Root Directory is a project setting; a file named `vercel.json` alone does not set the remote monorepo root. [Vercel Git integration](https://vercel.com/docs/git), [monorepo setup](https://vercel.com/docs/monorepos)
 
+The landing page uses recognizable images returned by Imgflip's public catalog, rather than illustrative substitutes. Its three-format sample demonstrates name/description matching and links to the selected source image. Imgflip requires a backlink when embedding its hosted images; the page includes visible Imgflip attribution and allows its image host through CSP. Images remain externally hosted and are not represented as assets under the repository's software licence. [Imgflip hotlinking terms](https://imgflip.com/terms)
+
 ## Naming
 
 Keep **MemeIT** for the initial release: it clearly describes the small utility and avoids introducing a naming migration while the clipboard experience is still being tested. MemeTap and QuipDrop are alternatives, but domain, repository, app-store and trademark availability have not been checked.
 
 ## Release acceptance
 
-A compiled matrix and a deployed site establish build/distribution plumbing. They do not establish runtime support for every desktop, compositor, chat app or media type. Before widening support claims, download the public artifacts and test shortcut invocation, search, import, favorites, static-image paste, animated-file paste and attachment fallback on each intended combination. Record exactly which combinations passed.
+A compiled matrix and a deployed site establish build/distribution plumbing. They do not establish runtime support for every desktop, compositor, chat app, provider or media type. Before widening support claims, download the public artifacts and test shortcut invocation, real internet-catalog retrieval, descriptive search, missing-key/quota states, import, favorites, static-image paste, animated-file paste and attachment fallback on each intended combination. Record exactly which combinations passed. Confirm provider approval and delivery requirements before enabling a broad GIF service in a public release.

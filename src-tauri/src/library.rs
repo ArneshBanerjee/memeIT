@@ -93,6 +93,24 @@ pub fn inspect_media(path: &Path) -> Result<String> {
                 .into(),
         );
     }
+    // Pixel clipboard representations flatten animation. Only GIF animation is
+    // supported by this version, using the original-file copy path.
+    let animated = match format {
+        ImageFormat::Png => image::codecs::png::PngDecoder::new(std::io::BufReader::new(
+            fs::File::open(path).map_err(|e| e.to_string())?,
+        ))
+        .and_then(|decoder| decoder.is_apng())
+        .map_err(|e| format!("Invalid PNG: {e}"))?,
+        ImageFormat::WebP => image::codecs::webp::WebPDecoder::new(std::io::BufReader::new(
+            fs::File::open(path).map_err(|e| e.to_string())?,
+        ))
+        .map(|decoder| decoder.has_animation())
+        .map_err(|e| format!("Invalid WebP: {e}"))?,
+        _ => false,
+    };
+    if animated {
+        return Err("Animated PNG and WebP are not supported yet. Convert the animation to GIF before importing so its motion is preserved.".into());
+    }
     let mut reader = ImageReader::open(path)
         .map_err(|e| e.to_string())?
         .with_guessed_format()
@@ -112,7 +130,7 @@ impl LibraryStore {
     pub fn load(directory: PathBuf, assets: &Path) -> Result<Self> {
         fs::create_dir_all(directory.join("media")).map_err(|e| e.to_string())?;
         let path = directory.join("library.json");
-        let library = if path.exists() {
+        let mut library = if path.exists() {
             serde_json::from_slice::<Library>(&fs::read(&path).map_err(|e| e.to_string())?)
                 .map_err(|e| {
                     format!("Your library could not be read. It has not been overwritten: {e}")
@@ -134,6 +152,33 @@ impl LibraryStore {
         {
             return Err("Library contains an invalid media filename.".into());
         }
+        // Remove only the original preview's known bundled seed records. Imported
+        // files use UUIDs and are retained, even if their filenames match a seed.
+        let legacy = [
+            "surprised.gif",
+            "awkward.gif",
+            "celebration.gif",
+            "chaos.gif",
+            "judging.png",
+            "tired.png",
+            "thinking.png",
+            "nope.png",
+            "support.png",
+            "laughing.png",
+            "waiting.png",
+            "oops.png",
+            "smug.png",
+            "sad.png",
+            "panic.png",
+            "popcorn.png",
+            "agree.png",
+            "leaving.png",
+        ];
+        library.items.retain(|item| {
+            !legacy.iter().any(|filename| {
+                item.filename == *filename && item.id == filename.split('.').next().unwrap_or("")
+            })
+        });
         let mut store = Self { library, directory };
         let catalog = fs::read(assets.join("catalog.json"))
             .map_err(|e| format!("Bundled meme pack is missing: {e}"))?;
@@ -270,48 +315,134 @@ pub fn now() -> u64 {
         .as_secs()
 }
 
-fn tokenize(text: &str) -> Vec<String> {
-    let stop = [
-        "a",
-        "an",
-        "the",
-        "i",
-        "im",
-        "i'm",
-        "me",
-        "my",
-        "of",
-        "to",
-        "in",
-        "is",
-        "it",
-        "and",
-        "for",
-        "that",
-        "this",
-        "when",
-        "with",
-        "someone",
-        "something",
-        "meme",
-        "gif",
-        "image",
-        "show",
-        "find",
-        "feeling",
-        "like",
-        "being",
-        "but",
-        "so",
-        "at",
-        "be",
-        "you",
-        "your",
-    ];
+fn raw_tokens(text: &str) -> Vec<String> {
+    // Keep negation visible before removing sentence filler. Handle straight and
+    // curly apostrophes consistently without requiring an English-only tokenizer.
     text.to_lowercase()
+        .replace('’', "'")
+        .replace("can't", "can not")
+        .replace("won't", "will not")
+        .replace("n't", " not")
         .split(|c: char| !c.is_alphanumeric())
-        .filter(|word| !word.is_empty() && !stop.contains(word))
-        .map(str::to_owned)
+        .filter(|word| !word.is_empty())
+        .flat_map(|word| {
+            if word == "cannot" {
+                vec!["can".to_owned(), "not".to_owned()]
+            } else {
+                vec![word.to_owned()]
+            }
+        })
+        .collect()
+}
+
+fn is_filler(word: &str) -> bool {
+    matches!(
+        word,
+        "a" | "an"
+            | "the"
+            | "i"
+            | "im"
+            | "m"
+            | "s"
+            | "re"
+            | "ve"
+            | "ll"
+            | "d"
+            | "me"
+            | "my"
+            | "myself"
+            | "we"
+            | "our"
+            | "us"
+            | "he"
+            | "his"
+            | "she"
+            | "her"
+            | "they"
+            | "their"
+            | "them"
+            | "you"
+            | "your"
+            | "it"
+            | "its"
+            | "of"
+            | "to"
+            | "in"
+            | "on"
+            | "at"
+            | "by"
+            | "from"
+            | "after"
+            | "before"
+            | "as"
+            | "for"
+            | "with"
+            | "is"
+            | "am"
+            | "are"
+            | "was"
+            | "were"
+            | "be"
+            | "been"
+            | "being"
+            | "do"
+            | "does"
+            | "did"
+            | "have"
+            | "has"
+            | "had"
+            | "can"
+            | "could"
+            | "will"
+            | "would"
+            | "should"
+            | "and"
+            | "or"
+            | "but"
+            | "so"
+            | "that"
+            | "this"
+            | "those"
+            | "these"
+            | "when"
+            | "why"
+            | "how"
+            | "someone"
+            | "something"
+            | "anything"
+            | "everything"
+            | "meme"
+            | "memes"
+            | "gif"
+            | "gifs"
+            | "image"
+            | "images"
+            | "show"
+            | "find"
+            | "feeling"
+            | "feel"
+            | "like"
+            | "please"
+            | "just"
+            | "really"
+            | "very"
+            | "quite"
+            | "too"
+            | "only"
+            | "completely"
+            | "totally"
+            | "literally"
+            | "actually"
+            | "not"
+            | "never"
+            | "without"
+    )
+}
+
+fn tokenize(text: &str) -> Vec<String> {
+    raw_tokens(text)
+        .into_iter()
+        .filter(|word| !is_filler(word))
         .collect()
 }
 
@@ -321,12 +452,11 @@ fn concept(word: &str) -> &str {
         | "celebration" | "party" | "win" | "winning" | "victory" | "success" | "yay" => {
             "celebration"
         }
-        "sad" | "sadness" | "cry" | "crying" | "tears" | "heartbroken" | "disappointed"
+        "sad" | "sadness" | "cry" | "crying" | "heartbroken" | "disappointed"
         | "disappointment" | "depressed" => "sadness",
         "angry" | "anger" | "rage" | "furious" | "annoyed" | "annoying" | "frustrated"
         | "frustration" | "mad" => "anger",
-        "confused" | "confusion" | "huh" | "what" | "understand" | "understanding" | "puzzled"
-        | "math" | "calculating" => "confusion",
+        "confused" | "confusion" | "huh" | "puzzled" | "math" | "calculating" => "confusion",
         "shocked" | "shock" | "surprised" | "surprise" | "unbelievable" | "speechless" | "wow"
         | "astonished" => "surprise",
         "awkward" | "awkwardness" | "embarrassed" | "embarrassing" | "cringe" | "nervous"
@@ -355,16 +485,89 @@ fn concept(word: &str) -> &str {
     }
 }
 
+fn is_reaction(term: &str) -> bool {
+    matches!(
+        term,
+        "celebration"
+            | "sadness"
+            | "anger"
+            | "confusion"
+            | "surprise"
+            | "awkward"
+            | "tired"
+            | "laughter"
+            | "approval"
+            | "rejection"
+            | "waiting"
+            | "panic"
+            | "suspicious"
+            | "love"
+    )
+}
+
+fn query_terms(query: &str) -> (Vec<String>, HashSet<String>) {
+    let raw = raw_tokens(query);
+    let mut words = Vec::new();
+    let mut excluded = HashSet::new();
+    let mut index = 0;
+    while index < raw.len() {
+        let word = raw[index].as_str();
+        if matches!(word, "not" | "never" | "without" | "no") {
+            let mut next = index + 1;
+            while next < raw.len()
+                && matches!(
+                    raw[next].as_str(),
+                    "a" | "an" | "the" | "very" | "really" | "quite" | "so" | "feeling"
+                )
+            {
+                next += 1;
+            }
+            if let Some(target) = raw.get(next) {
+                // These explicit idioms are useful reactions, not the negation
+                // of "understanding" or "belief". Do not infer arbitrary opposites.
+                let idiom = match (word, target.as_str()) {
+                    ("not", "understand") | ("no", "idea") => Some("confused"),
+                    ("not", "believe") => Some("surprised"),
+                    ("no", "energy") => Some("tired"),
+                    _ => None,
+                };
+                if let Some(reaction) = idiom {
+                    words.push(reaction.to_string());
+                    index = next + 1;
+                    continue;
+                }
+                let meaning = concept(target);
+                if is_reaction(meaning) {
+                    excluded.insert(meaning.to_string());
+                    index = next + 1;
+                    continue;
+                }
+            }
+        }
+        if !is_filler(word) {
+            words.push(word.to_string());
+        }
+        index += 1;
+    }
+    words.sort();
+    words.dedup();
+    (words, excluded)
+}
+
 pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeItem>> {
     if !["all", "favorites", "recent", "gif", "image"].contains(&filter) {
         return Err("Unknown search filter.".into());
     }
-    if query.len() > 2000 {
+    if query.chars().count() > 2000 {
         return Err("Search descriptions must be shorter than 2,000 characters.".into());
     }
-    let words = tokenize(query);
-    let concepts: HashSet<_> = words.iter().map(|word| concept(word).to_string()).collect();
-    let phrase = query.trim().to_lowercase();
+    let (words, excluded) = query_terms(query);
+    let reactions: HashSet<_> = words
+        .iter()
+        .map(|word| concept(word))
+        .filter(|term| is_reaction(term))
+        .collect();
+    let phrase = raw_tokens(query).join(" ");
     let mut ranked: Vec<(i64, &MemeItem)> = items
         .iter()
         .filter(|item| match filter {
@@ -375,38 +578,73 @@ pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeI
             _ => true,
         })
         .filter_map(|item| {
-            if words.is_empty() {
+            if query.trim().is_empty() {
                 return Some((0, item));
             }
-            let title = item.title.to_lowercase();
-            let tags = item.tags.join(" ").to_lowercase();
-            let body = format!("{title} {tags} {}", item.description.to_lowercase());
-            let title_tokens = tokenize(&title);
-            let tag_tokens = tokenize(&tags);
-            let body_tokens = tokenize(&body);
+            // An exclusion-only query does not assert the opposite emotion.
+            if words.is_empty() {
+                return None;
+            }
+            let title_tokens = tokenize(&item.title);
+            let tag_tokens = tokenize(&item.tags.join(" "));
+            let body_tokens = tokenize(&item.description);
+            let title_concepts: HashSet<_> =
+                title_tokens.iter().map(|word| concept(word)).collect();
+            let tag_concepts: HashSet<_> = tag_tokens.iter().map(|word| concept(word)).collect();
             let body_concepts: HashSet<_> = body_tokens.iter().map(|word| concept(word)).collect();
-            let mut score = if !phrase.is_empty() && title.contains(&phrase) {
-                20
+            if excluded.iter().any(|term| {
+                title_concepts.contains(term.as_str()) || tag_concepts.contains(term.as_str())
+            }) {
+                return None;
+            }
+            // If a reaction was specified, incidental context like "at work"
+            // must not return a different emotion just because "work" matches.
+            if !reactions.is_empty()
+                && !reactions.iter().any(|term| {
+                    title_concepts.contains(term)
+                        || tag_concepts.contains(term)
+                        || body_concepts.contains(term)
+                })
+            {
+                return None;
+            }
+            let title_phrase = raw_tokens(&item.title).join(" ");
+            let exact_phrase = title_phrase == phrase
+                || (phrase.contains(' ')
+                    && format!(" {title_phrase} ").contains(&format!(" {phrase} ")));
+            let mut score = if !phrase.is_empty() && exact_phrase {
+                30
             } else {
                 0
             };
+            let mut matched = 0;
             for word in &words {
-                if title_tokens.contains(word) {
-                    score += 7;
-                } else if tag_tokens.contains(word) {
-                    score += 6;
+                let meaning = concept(word);
+                let contribution = if tag_tokens.contains(word) {
+                    11
+                } else if tag_concepts.contains(meaning) {
+                    10
+                } else if title_tokens.contains(word) {
+                    9
+                } else if title_concepts.contains(meaning) {
+                    6
                 } else if body_tokens.contains(word) {
-                    score += 3;
+                    3
+                } else if body_concepts.contains(meaning) {
+                    2
                 } else if word.len() >= 4 && body_tokens.iter().any(|token| token.starts_with(word))
                 {
-                    score += 1;
+                    1
+                } else {
+                    0
+                };
+                score += contribution;
+                if contribution > 0 {
+                    matched += 1;
                 }
             }
-            for term in &concepts {
-                if body_concepts.contains(term.as_str()) {
-                    score += 4;
-                }
-            }
+            // Reward covering the situation, not one incidental title word.
+            score += matched * 6;
             if score == 0 {
                 None
             } else {
@@ -431,6 +669,122 @@ pub fn search(items: &[MemeItem], query: &str, filter: &str) -> Result<Vec<MemeI
 #[cfg(test)]
 mod tests {
     use super::*;
+    // Representative metadata captured from the starter catalog when the
+    // sentence-filler regression was found. Keep these independent of whichever
+    // pack is distributed: search must work equally well for imported catalogs.
+    fn description_fixtures() -> Vec<MemeItem> {
+        vec![
+            meme(
+                "I am not surviving this",
+                "Laughing so hard, tears, funniest thing ever, cannot breathe",
+                &["laughing", "funny", "hilarious", "tears"],
+            ),
+            meme(
+                "We're so back",
+                "Victory, congratulations, excited about good news",
+                &["celebration", "happy", "success", "excited"],
+            ),
+            meme(
+                "Emotionally 1%",
+                "Exhausted, drained, no energy left after work",
+                &["tired", "sleepy", "exhausted"],
+            ),
+            meme(
+                "Plan A is on fire",
+                "Pretending everything is fine while things fall apart at work",
+                &["chaos", "panic", "overwhelmed"],
+            ),
+            meme(
+                "Acting normal",
+                "Pretending to be completely normal, uncomfortable silence",
+                &["awkward", "pretending"],
+            ),
+            meme(
+                "Tiny emotional damage",
+                "Disappointment and hurt feelings",
+                &["sad", "heartbroken"],
+            ),
+            meme(
+                "Wait. What?",
+                "Unexpected news, cannot believe what I just heard",
+                &["surprised", "shocked"],
+            ),
+            meme(
+                "Let me overthink that",
+                "Trying to understand a confusing explanation",
+                &["confused", "calculating"],
+            ),
+            meme(
+                "Any second now",
+                "Waiting for a reply",
+                &["waiting", "patient"],
+            ),
+        ]
+    }
+
+    #[test]
+    fn conversational_filler_cannot_outrank_the_requested_reaction() {
+        let items = description_fixtures();
+        for (query, expected) in [
+            ("I am happy for you", "We're so back"),
+            ("I'm excited about success", "We're so back"),
+            ("when I am tired after work", "Emotionally 1%"),
+            ("pretending everything is fine", "Plan A is on fire"),
+            ("laughing so hard I cry", "I am not surviving this"),
+            ("wait", "Any second now"),
+            ("Wait What", "Wait. What?"),
+        ] {
+            assert_eq!(
+                search(&items, query, "all").unwrap()[0].title,
+                expected,
+                "{query}"
+            );
+        }
+        for query in [
+            "I am bored",
+            "show me a cat in space",
+            "angry at a coworker",
+        ] {
+            assert!(search(&items, query, "all").unwrap().is_empty(), "{query}");
+        }
+    }
+
+    #[test]
+    fn bounded_negation_does_not_recommend_the_excluded_emotion() {
+        let items = description_fixtures();
+        for query in ["not sad", "not laughing", "I am not happy for you"] {
+            assert!(search(&items, query, "all").unwrap().is_empty(), "{query}");
+        }
+        for (query, expected) in [
+            ("not sad but happy", "We're so back"),
+            ("not tired just excited", "We're so back"),
+            ("not crying just laughing", "I am not surviving this"),
+            ("not only happy but excited", "We're so back"),
+            ("can't stop laughing", "I am not surviving this"),
+            ("no energy left", "Emotionally 1%"),
+            ("I cannot believe you said that", "Wait. What?"),
+            ("I don't understand", "Let me overthink that"),
+            ("I don’t understand", "Let me overthink that"),
+        ] {
+            assert_eq!(
+                search(&items, query, "all").unwrap()[0].title,
+                expected,
+                "{query}"
+            );
+        }
+    }
+
+    #[test]
+    fn unicode_descriptions_and_empty_browsing_remain_supported() {
+        let items = vec![
+            meme("休憩", "仕事で疲れた", &["疲れた"]),
+            meme("Another", "Nothing here", &[]),
+        ];
+        assert_eq!(search(&items, "疲れた", "all").unwrap()[0].title, "休憩");
+        assert_eq!(search(&items, "", "all").unwrap().len(), 2);
+        assert!(search(&items, &"界".repeat(2001), "all").is_err());
+    }
+
     fn meme(title: &str, description: &str, tags: &[&str]) -> MemeItem {
         MemeItem {
             id: title.into(),
@@ -543,5 +897,77 @@ mod tests {
         let saved: Library =
             serde_json::from_slice(&fs::read(dir.path().join("library.json")).unwrap()).unwrap();
         assert_eq!(saved.items.len(), 1);
+    }
+
+    #[test]
+    fn animated_png_and_webp_are_rejected_instead_of_flattened() {
+        let dir = tempfile::tempdir().unwrap();
+        for (name, bytes) in [
+            (
+                "animated.png",
+                include_bytes!("../tests/fixtures/animated.png").as_slice(),
+            ),
+            (
+                "animated.webp",
+                include_bytes!("../tests/fixtures/animated.webp").as_slice(),
+            ),
+        ] {
+            let path = dir.path().join(name);
+            fs::write(&path, bytes).unwrap();
+            assert!(inspect_media(&path)
+                .unwrap_err()
+                .contains("Convert the animation to GIF"));
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn media_symlinks_cannot_expose_external_files() {
+        let dir = tempfile::tempdir().unwrap();
+        fs::create_dir(dir.path().join("media")).unwrap();
+        let outside = dir.path().join("outside.png");
+        image::RgbaImage::new(2, 2).save(&outside).unwrap();
+        std::os::unix::fs::symlink(&outside, dir.path().join("media/test.png")).unwrap();
+        let item = meme("linked", "", &[]);
+        let store = LibraryStore {
+            directory: dir.path().into(),
+            library: Library {
+                version: 1,
+                items: vec![item],
+                shortcut: default_shortcut(),
+            },
+        };
+        assert!(store.media_path("linked").is_err());
+        assert!(inspect_media(&dir.path().join("media/test.png")).is_err());
+    }
+
+    #[test]
+    fn migration_removes_old_seed_records_but_retains_imports_and_files() {
+        let dir = tempfile::tempdir().unwrap();
+        let assets = tempfile::tempdir().unwrap();
+        fs::create_dir(dir.path().join("media")).unwrap();
+        fs::write(assets.path().join("catalog.json"), "[]").unwrap();
+        let mut seed = meme("tired", "old preview seed", &[]);
+        seed.filename = "tired.png".into();
+        let mut imported = seed.clone();
+        imported.id = uuid::Uuid::new_v4().to_string();
+        imported.title = "My imported reaction".into();
+        image::RgbaImage::new(2, 2)
+            .save(dir.path().join("media/tired.png"))
+            .unwrap();
+        let library = Library {
+            version: 1,
+            items: vec![seed, imported.clone()],
+            shortcut: default_shortcut(),
+        };
+        fs::write(
+            dir.path().join("library.json"),
+            serde_json::to_vec(&library).unwrap(),
+        )
+        .unwrap();
+        let store = LibraryStore::load(dir.path().into(), assets.path()).unwrap();
+        assert_eq!(store.library.items.len(), 1);
+        assert_eq!(store.library.items[0].id, imported.id);
+        assert!(dir.path().join("media/tired.png").exists());
     }
 }

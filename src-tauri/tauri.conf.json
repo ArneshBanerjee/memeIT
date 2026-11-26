@@ -22,7 +22,7 @@
       "visible": true
     }],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.imgflip.com https://api.memegen.link https://static.klipy.com https://static1.klipy.com https://static2.klipy.com; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'"
     }
   },
   "bundle": {
@@ -30,7 +30,7 @@
     "targets": "all",
     "category": "Utility",
     "shortDescription": "Find the reaction. Keep the conversation.",
-    "longDescription": "An open-source, local-first meme palette with natural-language search, GIF and image copying, favorites, and a global keyboard shortcut.",
+    "longDescription": "An open-source desktop picker for internet memes, with description search, local template captions, image and GIF sharing, favorites, and a global keyboard shortcut.",
     "resources": { "../assets/": "assets/" },
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "macOS": { "minimumSystemVersion": "11.0" }
