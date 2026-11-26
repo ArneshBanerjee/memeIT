@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 — Copy now, keep it for later
+
+- Copy captioned memes directly to the clipboard and automatically keep them in Your memes, with content-based deduplication.
+- Reuse creations, import personal images/GIFs, and optionally rename or describe them.
+- Extend local semantic retrieval to saved and imported descriptions.
+- Expand verified contemporary formats, including 6–7, and test visual descriptions without meme names.
+- Persist browser-preview creations locally and preserve clipboard user activation.
+
 ## 0.1.1 — Natural-language retrieval
 
 - Added local sentence embeddings for meaning-based desktop search, combined with typo-tolerant names and descriptions.

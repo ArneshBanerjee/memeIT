@@ -1,6 +1,6 @@
 [package]
 name = "memeit"
-version = "0.1.1"
+version = "0.1.2"
 description = "A keyboard-first meme palette for your conversations"
 authors = ["MemeIT contributors"]
 edition = "2021"

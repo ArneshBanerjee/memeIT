@@ -7,11 +7,15 @@ export type Searchable = {
 };
 
 const filler = new Set(
-  "a an the this that these those i me my we our you your it its is am are was were be been being of to in on at for from with and or as when where who what how which one meme image picture photo gif reaction want need find looking show please something about like just really very then".split(
+  "a an the this that these those i me my we our you your it its is am are was were be been being of to in on at for from with and or as when where who what how which one meme image picture photo gif reaction want need find show please something about like just really very then".split(
     " ",
   ),
 );
 const groups = [
+  ["guy", "man", "dude", "boyfriend", "male"],
+  ["girl", "woman", "lady", "girlfriend", "female"],
+  ["other", "another", "different"],
+  ["look", "stare", "glance", "gaze", "peek"],
   ["cooked", "doomed", "screwed", "finished", "resigned", "hopeless"],
   ["angry", "mad", "furious", "rage"],
   ["confused", "puzzled", "perplexed", "confusion"],
@@ -36,7 +40,7 @@ function words(text: string): string[] {
   return [
     ...new Set(
       (text.toLocaleLowerCase().match(/[\p{L}\p{N}]+/gu) || [])
-        .filter((w) => w.length > 1 && !filler.has(w))
+        .filter((w) => (w.length > 1 || /^\d+$/.test(w)) && !filler.has(w))
         .map(stem),
     ),
   ];
@@ -81,6 +85,10 @@ export function searchPreview<T extends Searchable>(
 ): T[] {
   const terms = words(query);
   if (!terms.length) return items;
+  // Longer queries usually describe a scene. Keep visual verbs such as "looking"
+  // and let descriptions compete with titles, so a fuzzy word in a short name
+  // cannot outweigh several matching people/actions across the actual scene.
+  const describing = terms.length > 2;
   const docs = items.map((item) => ({
     item,
     title: words(item.title),
@@ -114,7 +122,9 @@ export function searchPreview<T extends Searchable>(
         );
         const match = Math.max(title, tags, description);
         if (match > 0) coverage++;
-        score += weights[index] * (title * 4 + tags * 2 + description);
+        score += weights[index] * (describing
+          ? title * 2 + tags * 1.5 + description * 2
+          : title * 4 + tags * 2 + description);
       });
       // Reward satisfying the whole description over repeating a common word.
       score *= 0.25 + (coverage / terms.length) ** 2;

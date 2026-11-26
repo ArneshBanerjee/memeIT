@@ -25,10 +25,10 @@ These early builds are **not a signed, notarized production release**. macOS bui
 
 Global shortcuts can be unavailable in some Linux Wayland sessions. Open the application or tray menu as a fallback. Image and GIF file paste support depends on the chat application; saving and attaching permitted files is the fallback. Mobile platforms are not included.
 
-Classic-catalog search combines a bundled local sentence model with names, descriptions, slang, and typo tolerance. No AI API key is needed; search queries in Popular memes stay on your device. Cooked Dog and other verified reactions missing from popular feeds are included. Optional broad search uses the selected provider's service. This preview does not claim unrestricted semantic understanding or universal internet coverage. Third-party meme artwork remains subject to its owners' rights and source terms; the software licence does not relicense it.
+Classic-catalog search combines a bundled local sentence model with names, descriptions, slang, and typo tolerance. No AI API key is needed; search queries in Popular memes stay on your device. Cooked Dog, 6–7, and other verified reactions missing from popular feeds are included. Visual descriptions such as “the guy looking back at other girl meme” retrieve Distracted Boyfriend without knowing its name. Local semantic matching also covers saved/imported text descriptions. Optional broad search uses the selected provider's service. This preview does not claim unrestricted semantic understanding or universal internet coverage. Third-party meme artwork remains subject to its owners' rights and source terms; the software licence does not relicense it.
 
 Please report compatibility problems with the OS version and receiving chat app in [GitHub Issues](https://github.com/ArneshBanerjee/memeIT/issues).
 
 ### Caption templates locally
 
-Choose **Add text** on a static internet template, write and position your captions, then copy or save the finished PNG. The editor runs on your device without a caption-generation API. Animated GIF editing is not included.
+Choose **Add text** on a static internet template, write and position your captions, then choose **Copy meme**. The finished PNG goes straight to the clipboard and is automatically kept in **Your memes** for copying again later. No file-save dialog is required. Import personal images or GIFs with **Import memes** and optionally use **Name & describe** to rename them. The editor runs on your device without a caption-generation API. Animated GIF editing is not included.

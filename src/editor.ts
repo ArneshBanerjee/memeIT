@@ -1,9 +1,12 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import "./editor.css";
+import { saveBrowserMeme, copyBrowserImage } from "./browser-library";
 
 type TemplateItem = {
   id: string;
   title: string;
+  description?: string;
+  tags?: string[];
   provider: string;
   mediaUrl: string;
   sourceUrl: string;
@@ -80,7 +83,7 @@ export async function openTemplateEditor(
         <p class="te-local-note">Rendered on your device. Your caption is not sent to a captioning service.</p>
       </section>
     </div>
-    <footer class="te-footer"><p id="te-status" role="status" aria-live="polite">Add your text, then copy it into the conversation.</p><div><button type="button" id="te-save" class="te-button te-secondary" disabled>Save PNG</button><button type="button" id="te-copy" class="te-button te-primary" disabled>Copy meme</button></div></footer>`;
+    <footer class="te-footer"><p id="te-status" role="status" aria-live="polite">Copy it now. Find it again in Your memes.</p><div><button type="button" id="te-copy" class="te-button te-primary" disabled>Copy meme</button></div></footer>`;
   document.body.append(dialog);
   const $ = <T extends HTMLElement>(selector: string) =>
     dialog.querySelector<T>(selector)!;
@@ -95,7 +98,6 @@ export async function openTemplateEditor(
   const status = $("#te-status");
   const loading = $(".te-loading");
   const copyButton = $<HTMLButtonElement>("#te-copy");
-  const saveButton = $<HTMLButtonElement>("#te-save");
   const controls = $(".te-controls");
   $("#te-description").textContent = item.title;
   let image: HTMLImageElement | null = null;
@@ -488,52 +490,49 @@ export async function openTemplateEditor(
       output.height = 1;
     }
   }
-  function downloadPng(dataUrl: string) {
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = `${item.title.replace(/[^a-zA-Z0-9_-]+/g, "-").slice(0, 70) || "meme"}-memeit.png`;
-    document.body.append(link);
-    link.click();
-    link.remove();
-  }
-  async function finish(action: "copy" | "save") {
+  async function finish() {
     if (busy || !editable) return;
-    if (!layers.some((layer) => layer.text.trim())) {
+    const captions = layers.map((layer) => layer.text.trim());
+    if (!captions.some(Boolean)) {
       setStatus("Add a caption first. Your meme is waiting for the punchline.");
       textInput.focus();
       return;
     }
     setBusy(true);
-    setStatus(
-      action === "copy"
-        ? "Preparing your meme for the clipboard…"
-        : "Preparing your PNG…",
-    );
+    setStatus("Copying your meme and keeping it in Your memes…");
     let message = "";
     try {
       const dataUrl = composedPng();
       if (native) {
-        if (action === "copy") {
-          const result = await invoke<{ message: string }>("copy_composed", {
+        const result = await invoke<{ message: string; copied: boolean }>(
+          "copy_composed",
+          {
             dataUrl,
+            templateId: item.id,
+            captions,
             hideAfter: localStorage.getItem("hideAfter") !== "false",
-          });
-          message = result.message;
-        } else {
-          const saved = await invoke<boolean>("save_composed", { dataUrl });
-          if (!saved) {
-            setStatus("Save cancelled. Your captions are still here.");
-            return;
-          }
-          message = "Meme saved as PNG. Attach it in your conversation.";
+          },
+        );
+        if (!result.copied) {
+          setStatus(result.message, true);
+          return;
         }
+        message = result.message;
       } else {
-        // Download is universally useful in browser previews and keeps failure honest.
-        downloadPng(dataUrl);
-        message =
-          action === "copy"
-            ? "PNG downloaded. Use the desktop app to copy images directly into a chat."
-            : "Meme downloaded as PNG.";
+        // Start clipboard access within the click gesture. Its PNG promise is
+        // gated on successful persistence, including in Safari.
+        const saved = saveBrowserMeme(dataUrl, item, captions);
+        const copied = copyBrowserImage(dataUrl, saved);
+        const outcomes = await Promise.allSettled([saved, copied]);
+        if (outcomes[0].status === "rejected") throw outcomes[0].reason;
+        if (outcomes[1].status === "rejected") {
+          setStatus(
+            String(outcomes[1].reason instanceof Error ? outcomes[1].reason.message : outcomes[1].reason),
+            true,
+          );
+          return;
+        }
+        message = "Copied to your clipboard and saved in Your memes.";
       }
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
@@ -548,10 +547,7 @@ export async function openTemplateEditor(
     }
   }
   copyButton.addEventListener("click", () => {
-    void finish("copy");
-  });
-  saveButton.addEventListener("click", () => {
-    void finish("save");
+    void finish();
   });
   syncControls();
   dialog.showModal();
@@ -620,17 +616,9 @@ export async function openTemplateEditor(
     controls.removeAttribute("aria-disabled");
     syncControls();
     render();
-    if (!native) {
-      copyButton.textContent = "Download meme";
-      setStatus(
-        "Browser preview downloads a PNG. Desktop builds copy it directly.",
-      );
-    } else
-      setStatus(
-        drake
-          ? "Two captions, two opinions. Text starts in Drake’s right-hand panels."
-          : "Add your text, then copy the finished image into your chat.",
-      );
+    setStatus(
+      "Copy to your clipboard. Automatically saved in Your memes for next time.",
+    );
     textInput.focus();
   } catch (error) {
     if (closed) return;

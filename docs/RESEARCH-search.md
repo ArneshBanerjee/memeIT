@@ -16,7 +16,7 @@ templates; they are not a feed of every captioned post.
 
 Search their names, visual descriptions, intent descriptions, and tags in Rust.
 [`../assets/internet-metadata.json`](../assets/internet-metadata.json) contains
-319 original annotations keyed by exact `{source, id}`, covering the observed
+353 original annotations keyed by exact `{source, id}`, covering the observed
 provider catalogs and verified supplemental classics and newer formats. Each record contains
 `source`, `id`, `description`, and `tags`; it contains no copied artwork. Visual
 queries such as "dog in a burning room" and "man distracted by another woman"
@@ -26,8 +26,10 @@ The desktop popular catalog now uses **hybrid semantic description search**:
 local MiniLM sentence embeddings combined with weighted lexical matches, English
 stemming, restrained typo tolerance, and limited emotion-negation handling.
 This compares descriptions; it does not read image pixels or understand every
-possible sentence. Imported items and the browser preview use lexical search.
-A missing or invalid model triggers an explicit keyword-search fallback.
+possible sentence. Saved and imported items also use local embeddings of their
+titles, descriptions and tags; the model does not infer unlabeled image pixels.
+The browser preview uses lexical search. A missing or invalid model triggers
+an explicit keyword-search fallback.
 
 Optional authenticated providers expand coverage: **Imgflip API Premium**
 searches its full template database; **KLIPY** searches GIFs and captioned memes
@@ -171,13 +173,16 @@ The desktop uses CPU-only Candle with a pinned model revision
 exact sizes and SHA-256 hashes. It bundles the upstream model card and Apache
 license. No model download or inference service is needed after installation.
 
-A committed index (about 4.46 MB for the initial 319 annotations) contains
+A committed index (about 5.09 MB for the current 353 annotations) contains
 normalized 384-dimensional embeddings for whole descriptions and descriptive
 sentences. Separating scene and intent passages avoids diluting one with the
 other; a conservative blend of best-passage and whole-description similarity
 feeds the hybrid ranker. Index entries include description hashes; stale vectors
-are skipped after metadata changes. The model loads lazily on a worker thread,
-then embeds only the user's query. Single unpadded sequences use mean pooling
+are not reused after metadata changes. The model loads lazily on a worker
+thread. Curated catalog searches need only the user's query embedding. New or
+edited local metadata is embedded on-device and cached by descriptor hash in
+a bounded 512-entry memory cache; changes replace the old semantic meaning.
+Single unpadded sequences use mean pooling
 and L2 normalization, following the model card. Descriptions and queries never
 leave the machine for this operation. This does not change the separate network
 requests needed to fetch internet catalog metadata and media.
@@ -188,7 +193,8 @@ English stemming handles inflections. Bounded edit distance applies to unknown
 words rather than replacing known short words; a short reversed word receives
 only a small bonus when two other description terms support the result.
 Similarity is a retrieval score, not calibrated confidence or proof that a
-result matches. New unannotated formats and imports retain lexical retrieval.
+result matches. Exact lexical retrieval remains part of the hybrid score for
+new formats and imports, and remains available when model loading fails.
 
 Sources: [MiniLM model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2),
 [Candle BERT implementation](https://github.com/huggingface/candle/tree/main/candle-examples/examples/bert),

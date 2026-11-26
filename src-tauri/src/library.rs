@@ -1,5 +1,6 @@
 use image::{ImageFormat, ImageReader};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::{
     collections::{HashMap, HashSet},
     fs,
@@ -306,6 +307,85 @@ impl LibraryStore {
             return Err(error);
         }
         Ok(added)
+    }
+
+    /// Persist bytes already validated by composed::decode. The content address
+    /// makes repeated copies idempotent, including retry after an interrupted save.
+    pub fn save_generated_png(
+        &mut self,
+        bytes: &[u8],
+        title: String,
+        description: String,
+        tags: Vec<String>,
+    ) -> Result<MemeItem> {
+        let id = format!("composed-{:x}", Sha256::digest(bytes));
+        let filename = format!("{id}.png");
+        let destination = self.directory.join("media").join(&filename);
+        let existing = self
+            .library
+            .items
+            .iter()
+            .find(|item| item.id == id)
+            .cloned();
+        if existing
+            .as_ref()
+            .is_some_and(|item| item.filename != filename || item.kind != "png")
+        {
+            return Err(
+                "The saved meme record is inconsistent. Your existing files were not changed."
+                    .into(),
+            );
+        }
+        let created = match fs::symlink_metadata(&destination) {
+            Ok(metadata) => {
+                if !metadata.is_file()
+                    || metadata.file_type().is_symlink()
+                    || metadata.len() != bytes.len() as u64
+                    || fs::read(&destination).map_err(|_| "Could not verify the saved meme.")?
+                        != bytes
+                {
+                    return Err("The saved meme file has changed. Your existing files were not overwritten.".into());
+                }
+                false
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                let mut file = tempfile::NamedTempFile::new_in(self.directory.join("media"))
+                    .map_err(|_| "Could not prepare your meme for saving.")?;
+                file.write_all(bytes)
+                    .map_err(|_| "Could not write your meme.")?;
+                file.as_file()
+                    .sync_all()
+                    .map_err(|_| "Could not finish saving your meme.")?;
+                file.persist_noclobber(&destination).map_err(|_| {
+                    "Could not save your meme. Existing files were not overwritten."
+                })?;
+                true
+            }
+            Err(_) => return Err("Could not inspect the saved meme location.".into()),
+        };
+        let mut item = existing.unwrap_or(MemeItem {
+            id: id.clone(),
+            title,
+            description,
+            tags,
+            filename,
+            kind: "png".into(),
+            favorite: false,
+            last_used: None,
+        });
+        item.last_used = Some(now());
+        let result = self.mutate(|library| {
+            if let Some(existing) = library.items.iter_mut().find(|existing| existing.id == id) {
+                *existing = item.clone();
+            } else {
+                library.items.push(item.clone());
+            }
+            Ok(item.clone())
+        });
+        if result.is_err() && created {
+            let _ = fs::remove_file(destination);
+        }
+        result
     }
 }
 
@@ -1098,6 +1178,42 @@ mod tests {
         let saved: Library =
             serde_json::from_slice(&fs::read(dir.path().join("library.json")).unwrap()).unwrap();
         assert_eq!(saved.items.len(), 1);
+    }
+
+    #[test]
+    fn imported_names_and_descriptions_survive_restart() {
+        let root = tempfile::tempdir().unwrap();
+        let assets = root.path().join("assets");
+        fs::create_dir(&assets).unwrap();
+        fs::write(assets.join("catalog.json"), "[]").unwrap();
+        let original = root.path().join("camera-image.png");
+        image::RgbaImage::new(3, 2).save(&original).unwrap();
+        let directory = root.path().join("library");
+        let mut store = LibraryStore::load(directory.clone(), &assets).unwrap();
+        let imported = store.import(vec![original]).unwrap().remove(0);
+        assert_eq!(imported.title, "camera-image");
+        store
+            .mutate(|library| {
+                let item = library
+                    .items
+                    .iter_mut()
+                    .find(|item| item.id == imported.id)
+                    .unwrap();
+                item.title = "My deadline reaction".into();
+                item.description =
+                    "A brown dog closes its eyes and accepts its fate in the sunset.".into();
+                item.tags = vec!["cooked".into(), "deadline".into()];
+                item.favorite = true;
+                Ok(())
+            })
+            .unwrap();
+        let reopened = LibraryStore::load(directory, &assets).unwrap();
+        let restored = reopened.item(&imported.id).unwrap();
+        assert_eq!(restored.title, "My deadline reaction");
+        assert!(restored.description.contains("accepts its fate"));
+        assert!(restored.favorite);
+        assert_eq!(restored.filename, imported.filename);
+        assert!(reopened.media_path(&imported.id).is_ok());
     }
 
     #[test]

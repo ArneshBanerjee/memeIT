@@ -47,6 +47,12 @@ pub struct SearchResponse {
 }
 
 #[derive(Serialize)]
+pub struct LibrarySearchResponse {
+    pub items: Vec<MemeItem>,
+    pub notice: String,
+}
+
+#[derive(Serialize)]
 pub struct ProviderConfig {
     pub imgflip: bool,
     pub klipy: bool,
@@ -527,7 +533,40 @@ impl OnlineState {
                 &self.assets_dir.join("semantic-index.json"),
             )
         });
-        engine.as_ref().map_err(Clone::clone)?.scores(query, items)
+        engine
+            .as_mut()
+            .map_err(|error| error.clone())?
+            .scores(query, items)
+    }
+
+    pub fn rank_library(
+        &self,
+        items: &[MemeItem],
+        query: &str,
+        filter: &str,
+    ) -> Result<LibrarySearchResponse> {
+        if query.chars().count() > 2000 {
+            return Err("Search descriptions must be shorter than 2,000 characters.".into());
+        }
+        let eligible = library::search(items, "", filter)?;
+        let mut notice = "Your saved memes and imports. Description matching runs on this device; imported images need your own descriptions.".to_string();
+        if query.trim().is_empty() || eligible.is_empty() {
+            return Ok(LibrarySearchResponse {
+                items: eligible,
+                notice,
+            });
+        }
+        let ranked = match self.semantic_scores(query, &eligible) {
+            Ok(scores) => library::hybrid_search(&eligible, query, filter, &scores)?,
+            Err(_) => {
+                notice.push_str(" Semantic search is unavailable; showing keyword matches. Reinstall the complete app to restore the bundled model.");
+                library::search(&eligible, query, filter)?
+            }
+        };
+        Ok(LibrarySearchResponse {
+            items: ranked,
+            notice,
+        })
     }
 
     pub fn config(&self) -> Result<ProviderConfig> {
@@ -928,6 +967,40 @@ mod tests {
         assert_eq!(result.items[0].id, "imgflip:574931918");
         assert!(result.notice.contains("Semantic search is unavailable"));
         assert!(result.notice.contains("keyword matches"));
+    }
+
+    #[test]
+    fn local_ranking_filters_before_model_load_and_reports_keyword_fallback() {
+        let directory = tempfile::tempdir().unwrap();
+        let state = OnlineState::new(
+            directory.path().to_path_buf(),
+            directory.path().join("assets"),
+        );
+        let mut item = MemeItem {
+            id: "local-descriptive-example".into(),
+            title: "My reaction".into(),
+            description: "A man turns to look at another woman while his girlfriend looks upset."
+                .into(),
+            tags: vec!["distracted".into()],
+            filename: "example.png".into(),
+            kind: "png".into(),
+            favorite: false,
+            last_used: None,
+        };
+        let filtered = state
+            .rank_library(&[item.clone()], "another woman", "favorites")
+            .unwrap();
+        assert!(filtered.items.is_empty());
+        assert!(state.semantic.lock().unwrap().is_none());
+        item.favorite = true;
+        let matched = state
+            .rank_library(&[item.clone()], "another woman", "favorites")
+            .unwrap();
+        assert_eq!(matched.items[0].id, item.id);
+        assert!(matched.notice.contains("Semantic search is unavailable"));
+        assert!(state
+            .rank_library(&[item], "woman", "unknown-filter")
+            .is_err());
     }
 
     #[test]

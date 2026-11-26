@@ -3,6 +3,12 @@ import { listen } from "@tauri-apps/api/event";
 import "./style.css";
 import { openTemplateEditor } from "./editor";
 import { searchPreview } from "./preview-search";
+import {
+  listBrowserMemes,
+  getBrowserMedia,
+  copyBrowserImage,
+  updateBrowserMemeMetadata,
+} from "./browser-library";
 
 type Kind = "png" | "gif" | "jpeg" | "webp";
 type Filter = "all" | "favorites" | "recent" | "gif" | "image";
@@ -94,7 +100,7 @@ const escape = (s: string) =>
 app.innerHTML = `<header><div class="brand"><span class="brand-icon">m<span>!</span></span><div><strong>MemeIT</strong><small>LESS TYPING. MORE FEELING.</small></div></div><div class="header-actions"><button id="import" class="secondary">${icons.plus} Import memes</button><button id="settings" class="icon-button" aria-label="Settings">${icons.settings}</button></div></header>
 <main><div class="intro"><h1>Find that meme.</h1><span class="local-label">THE INTERNET’S REACTION FOLDER.</span></div>
 <div class="search-box">${icons.search}<input id="search" type="search" autofocus autocomplete="off" maxlength="300" placeholder="Describe it… ‘the dog pretending everything is fine’" aria-label="Describe a meme or reaction"><kbd>/</kbd></div>
-<nav class="providers" aria-label="Meme sources">${(["popular", "klipy-gifs", "klipy-memes", "imgflip", "library"] as Provider[]).map((p) => `<button data-provider="${p}" class="provider-tab ${p === "popular" ? "active" : ""}" aria-pressed="${p === "popular"}">${{ popular: "Popular memes", "klipy-gifs": "GIF search", "klipy-memes": "Meme search", imgflip: "Full catalog", library: "Your library" }[p]}</button>`).join("")}</nav>
+<nav class="providers" aria-label="Meme sources">${(["popular", "klipy-gifs", "klipy-memes", "imgflip", "library"] as Provider[]).map((p) => `<button data-provider="${p}" class="provider-tab ${p === "popular" ? "active" : ""}" aria-pressed="${p === "popular"}">${{ popular: "Popular memes", "klipy-gifs": "GIF search", "klipy-memes": "Meme search", imgflip: "Full catalog", library: "Your memes" }[p]}</button>`).join("")}</nav>
 <div class="browse-bar"><nav id="filters" aria-label="Filter memes">${(["all", "favorites", "recent", "gif", "image"] as Filter[]).map((f) => `<button class="tab ${f === "all" ? "active" : ""}" data-filter="${f}" aria-pressed="${f === "all"}">${{ all: "All", favorites: "Favorites", recent: "Recent", gif: "GIFs", image: "Images" }[f]}</button>`).join("")}</nav><button id="provider-help" class="source-credit">Via Imgflip &amp; Memegen</button><span id="count" class="count"></span></div>
 <div id="preview-note" class="notice" ${native ? "hidden" : ""}>Browser preview · Install the desktop app for imports, global shortcuts, and native media copying.</div>
 <div id="diagnostic-note" class="notice" hidden></div><div id="source-notice" class="source-notice" role="status"></div><section id="grid" class="grid" aria-label="Meme results" aria-busy="true"></section><button id="load-more" class="secondary load-more" hidden>Load more</button><div id="empty" class="empty" hidden><div class="empty-mark">:)</div><h2 id="empty-title">No matches yet.</h2><p id="empty-text">Try a shorter description or another source.</p><button id="clear" class="secondary">Show popular memes</button><button id="connect" class="primary" hidden>Connect a provider</button></div></main>
@@ -145,7 +151,7 @@ async function getMedia(item: Meme) {
     const url = native
       ? (await invoke<{ preview: string }>("get_media", { id: item.id }))
           .preview
-      : `/${encodeURIComponent(item.filename)}`;
+      : await getBrowserMedia(item.id);
     // Bound retained data-URI memory. Visible DOM images have their own lifecycle below.
     if (url.length < 16 * 1024 * 1024) media.set(item.id, url);
     while (
@@ -180,7 +186,7 @@ function updateSelection() {
     return;
   }
   const linkOnly = !!item.online?.provider.startsWith("klipy");
-  panel.innerHTML = `<div class="selected-meta"><strong>${escape(item.title)}</strong><span>${escape(item.description || (item.online?.isTemplate ? "Popular internet meme format" : "Reaction"))}</span></div><div class="selection-actions">${!linkOnly ? `<button id="favorite" class="icon-button ${item.favorite ? "favorited" : ""}" aria-label="${item.online ? "Save to your library" : item.favorite ? "Remove from favorites" : "Add to favorites"}">${icons.star}</button>` : ""}${item.online?.isTemplate && item.kind !== "gif" ? '<button id="compose" class="secondary">Add text</button>' : ""}<button id="edit" class="text-button">${item.online ? "Source" : "Edit"}</button>${!linkOnly ? '<button id="save" class="text-button">Save file</button>' : ""}<button id="copy" class="primary">${icons.copy} ${linkOnly ? "Copy link" : item.kind === "gif" ? "Copy GIF file" : "Copy image"} <kbd>↵</kbd></button></div>`;
+  panel.innerHTML = `<div class="selected-meta"><strong>${escape(item.title)}</strong><span>${escape(item.description || (item.online?.isTemplate ? "Popular internet meme format" : "Reaction"))}</span></div><div class="selection-actions">${!linkOnly ? `<button id="favorite" class="icon-button ${item.favorite ? "favorited" : ""}" aria-label="${item.online ? "Save to Your memes" : item.favorite ? "Remove from favorites" : "Add to favorites"}">${icons.star}</button>` : ""}${item.online?.isTemplate && item.kind !== "gif" ? '<button id="compose" class="secondary">Add text</button>' : ""}<button id="edit" class="text-button">${item.online ? "Source" : "Name &amp; describe"}</button>${!linkOnly ? '<button id="save" class="text-button">Save file</button>' : ""}<button id="copy" class="primary">${icons.copy} ${linkOnly ? "Copy link" : item.kind === "gif" ? "Copy GIF file" : "Copy image"} <kbd>↵</kbd></button></div>`;
   document.querySelector("#compose")?.addEventListener("click", () => {
     if (item.online)
       void openTemplateEditor(item.online, {
@@ -205,6 +211,13 @@ function updateSelection() {
     .querySelector("#save")
     ?.addEventListener("click", () => void save(item));
 }
+function selectMeme(id: string) {
+  const index = results.findIndex((item) => item.id === id);
+  if (index < 0) return;
+  selected = index;
+  updateSelection();
+  grid.querySelector(".selected")?.scrollIntoView({ block: "nearest" });
+}
 function render() {
   mediaObserver?.disconnect();
   document.querySelector("#count")!.textContent =
@@ -218,7 +231,11 @@ function render() {
   document.querySelector<HTMLElement>("#connect")!.hidden = providerConfigured;
   document.querySelector<HTMLElement>("#clear")!.hidden = !providerConfigured;
   document.querySelector<HTMLElement>("#empty-title")!.textContent =
-    providerConfigured ? "No matches yet." : "Connect the full catalog.";
+    !providerConfigured
+      ? "Connect the full catalog."
+      : provider === "library" && !search.value.trim() && filter === "all"
+        ? "Your memes live here."
+        : "No matches yet.";
   document.querySelector<HTMLElement>("#provider-help")!.textContent =
     provider === "library"
       ? "Saved on your device"
@@ -235,7 +252,9 @@ function render() {
       ? "Save a meme to keep it close."
       : filter === "recent"
         ? "Your copied memes will appear here."
-        : "Try a meme name, a visual description, or another source.";
+        : provider === "library" && !search.value.trim()
+          ? "Add text to a template and copy it. Your creation is kept here automatically."
+          : "Try a meme name, a visual description, or another source.";
   grid.innerHTML = results
     .map(
       (item, index) =>
@@ -427,30 +446,34 @@ async function refresh(append = false): Promise<boolean> {
         "Your saved memes and imports. Search stays on this device.";
       providerConfigured = true;
       nextPage = null;
-      if (native)
-        next = await invoke<Meme[]>("search_memes", { query, filter });
-      else {
-        const tokens = query
-          .toLowerCase()
-          .split(/\W+/)
-          .filter((t) => t.length > 2);
-        next = all.filter(
-          (m) =>
-            filter === "all" ||
-            (filter === "favorites" && m.favorite) ||
-            (filter === "recent" && m.last_used) ||
-            (filter === "gif" && m.kind === "gif") ||
-            (filter === "image" && m.kind !== "gif"),
+      if (native) {
+        const response = await invoke<{ items: Meme[]; notice: string }>(
+          "search_memes", { query, filter },
         );
-        if (tokens.length)
-          next = next.filter((m) =>
-            tokens.some((t) =>
-              `${m.title} ${m.description} ${m.tags.join(" ")}`
-                .toLowerCase()
-                .includes(t),
-            ),
-          );
+        next = response.items;
+        onlineNotice = response.notice || onlineNotice;
+      } else {
+        all = await listBrowserMemes();
+        const favorites: string[] = JSON.parse(
+          localStorage.getItem("preview-favorites") || "[]",
+        );
+        all.forEach((item) => {
+          item.favorite = favorites.includes(item.id);
+        });
+        next = searchPreview(
+          all.filter(
+            (m) =>
+              filter === "all" ||
+              (filter === "favorites" && m.favorite) ||
+              (filter === "recent" && m.last_used) ||
+              (filter === "gif" && m.kind === "gif") ||
+              (filter === "image" && m.kind !== "gif"),
+          ),
+          query,
+        );
       }
+      if (!query.trim() && filter === "all")
+        next.sort((a, b) => (b.last_used || 0) - (a.last_used || 0));
     }
     if (generation !== queryGeneration || requestedKey !== queryKey())
       return false;
@@ -495,7 +518,14 @@ async function copySelected() {
     const item = results[selected];
     if (!item) return;
     if (!native) {
-      previewOnly();
+      if (item.online) {
+        previewOnly();
+        return;
+      }
+      await copyBrowserImage(getMedia(item));
+      item.last_used = Math.floor(Date.now() / 1000);
+      await updateBrowserMemeMetadata(item);
+      toast("Copied to your clipboard. Paste it into your conversation.");
       return;
     }
     const result = await invoke<{ message: string }>(
@@ -533,18 +563,20 @@ async function favorite(item: Meme) {
       if (!saved.favorite) await invoke("toggle_favorite", { id: saved.id });
       item.favorite = true;
       render();
-      toast("Saved to your library and favorites.");
+      toast("Saved to Your memes and favorites.");
       return;
     }
     const updated = native
       ? await invoke<Meme>("toggle_favorite", { id: item.id })
       : { ...item, favorite: !item.favorite };
     Object.assign(item, updated);
-    if (!native)
+    if (!native) {
+      await updateBrowserMemeMetadata(item);
       localStorage.setItem(
         "preview-favorites",
         JSON.stringify(all.filter((x) => x.favorite).map((x) => x.id)),
       );
+    }
     if (filter === "favorites") await refresh();
     else render();
   } catch (error) {
@@ -578,17 +610,13 @@ function openDialog(content: string) {
 }
 function edit(item: Meme) {
   openDialog(
-    `<div class="eyebrow">MAKE IT FINDABLE</div><h2>Describe this reaction.</h2><p>Search uses titles, descriptions, and tags. Add the situation you’d send it in.</p><form id="edit-form"><label>Title<input name="title" required maxlength="120" value="${escape(item.title)}"></label><label>Description<textarea name="description" rows="3" maxlength="2000">${escape(item.description)}</textarea></label><label>Tags <span class="muted">separated by commas</span><input name="tags" maxlength="1000" value="${escape(item.tags.join(", "))}"></label><button class="primary" type="submit">Save description</button></form>`,
+    `<div class="eyebrow">MAKE IT FINDABLE</div><h2>Describe this reaction.</h2><p>Search uses titles, descriptions, and tags. Add the situation you’d send it in.</p><form id="edit-form"><label>Title<input name="title" required maxlength="160" value="${escape(item.title)}"></label><label>Description<textarea name="description" rows="3" maxlength="2000">${escape(item.description)}</textarea></label><label>Tags <span class="muted">separated by commas</span><input name="tags" maxlength="1000" value="${escape(item.tags.join(", "))}"></label><button class="primary" type="submit">Save description</button></form>`,
   );
   dialog.querySelector("form")!.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!native) {
-      previewOnly();
-      return;
-    }
     const data = new FormData(event.currentTarget as HTMLFormElement);
     try {
-      await invoke("update_meme", {
+      const update = {
         id: item.id,
         title: String(data.get("title")),
         description: String(data.get("description")),
@@ -596,9 +624,11 @@ function edit(item: Meme) {
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-      });
+      };
+      if (native) await invoke("update_meme", update);
+      else await updateBrowserMemeMetadata({ ...item, ...update });
       dialog.close();
-      await refresh();
+      if (await refresh()) selectMeme(item.id);
       toast("Description saved.");
     } catch (error) {
       fail(error);
@@ -607,7 +637,7 @@ function edit(item: Meme) {
 }
 function settings() {
   openDialog(
-    `<div class="eyebrow">SMALL APP. BIG REACTION.</div><h2>Your MemeIT.</h2><p>No MemeIT account, chat access, or clipboard history. Internet searches go directly to the selected provider.</p><button id="provider-settings" class="secondary">Connect online catalogs</button><form id="settings-form"><label>Open picker shortcut<input name="shortcut" required value="${escape(shortcut)}" aria-describedby="shortcut-help"></label><small id="shortcut-help">Example: CommandOrControl+Shift+M. On Wayland, use your desktop’s shortcut settings to launch MemeIT.</small><label class="checkbox"><input name="hideAfter" type="checkbox" ${hideAfter ? "checked" : ""}> Hide after copying</label><button class="primary" type="submit">Save settings</button></form><div class="settings-notes"><strong>Images vs. GIFs</strong><p>Images copy as pixels. GIFs copy as original files to keep animation. If your chat doesn’t accept a pasted file, use Save file and attach it.</p><strong>Description search</strong><p>Popular memes combines an on-device language model with descriptions, names, and typo tolerance. Your library matches names, descriptions, and tags. Add descriptions to imported memes; their contents aren’t recognized automatically.</p>${diagnostics.length ? `<strong>System notes</strong><ul>${diagnostics.map((d) => `<li>${escape(d)}</li>`).join("")}</ul>` : ""}<p class="muted">MemeIT 0.1.1 · Preview · MIT software · Media belongs to its sources</p></div>`,
+    `<div class="eyebrow">SMALL APP. BIG REACTION.</div><h2>Your MemeIT.</h2><p>No MemeIT account, chat access, or clipboard history. Internet searches go directly to the selected provider.</p><button id="provider-settings" class="secondary">Connect online catalogs</button><form id="settings-form"><label>Open picker shortcut<input name="shortcut" required value="${escape(shortcut)}" aria-describedby="shortcut-help"></label><small id="shortcut-help">Example: CommandOrControl+Shift+M. On Wayland, use your desktop’s shortcut settings to launch MemeIT.</small><label class="checkbox"><input name="hideAfter" type="checkbox" ${hideAfter ? "checked" : ""}> Hide after copying</label><button class="primary" type="submit">Save settings</button></form><div class="settings-notes"><strong>Images vs. GIFs</strong><p>Images copy as pixels. GIFs copy as original files to keep animation. If your chat doesn’t accept a pasted file, use Save file and attach it.</p><strong>Description search</strong><p>${native ? "Popular memes and Your memes combine an on-device language model with descriptions, names, and typo tolerance. Add descriptions to imported memes; their contents aren’t recognized automatically." : "This browser preview matches descriptions, names, and related words. Install the desktop app for the on-device language model and personal meme imports."}</p>${diagnostics.length ? `<strong>System notes</strong><ul>${diagnostics.map((d) => `<li>${escape(d)}</li>`).join("")}</ul>` : ""}<p class="muted">MemeIT 0.1.2 · Preview · MIT software · Media belongs to its sources</p></div>`,
   );
   dialog.querySelector("#provider-settings")!.addEventListener("click", () => {
     dialog.close();
@@ -741,6 +771,7 @@ document
   .forEach((button) =>
     button.addEventListener("click", () => {
       provider = button.dataset.provider as Provider;
+      if (provider === "library") search.value = "";
       filter = "all";
       results = [];
       nextPage = null;
@@ -748,7 +779,9 @@ document
       void refresh();
       search.placeholder = provider.startsWith("klipy")
         ? "Search KLIPY… describe your reaction"
-        : "Describe it… ‘the dog pretending everything is fine’";
+        : provider === "library"
+          ? "Find a meme you made or saved…"
+          : "Describe it… ‘the dog pretending everything is fine’";
     }),
   );
 document.querySelector("#settings")!.addEventListener("click", settings);
@@ -763,10 +796,11 @@ document.querySelector("#import")!.addEventListener("click", async () => {
       provider = "library";
       filter = "all";
       search.value = "";
+      search.placeholder = "Find a meme you made or saved…";
       updateTabs();
-      await refresh();
+      if (await refresh()) selectMeme(imported[0].id);
       toast(
-        `Imported ${imported.length} ${imported.length === 1 ? "meme" : "memes"}. Add descriptions with Edit.`,
+        `Imported ${imported.length} ${imported.length === 1 ? "meme" : "memes"}. Use Name & describe to give them a name or searchable details.`,
       );
     }
   } catch (error) {
@@ -883,16 +917,9 @@ async function boot() {
         void refresh();
       });
     } else {
-      const response = await fetch("/catalog.json");
-      if (!response.ok) throw new Error("Local library could not be loaded.");
-      const favorites: string[] = JSON.parse(
-        localStorage.getItem("preview-favorites") || "[]",
-      );
-      all = ((await response.json()) as Meme[]).map((m) => ({
-        ...m,
-        favorite: favorites.includes(m.id),
-        last_used: null,
-      }));
+      // Restricted browser storage must not prevent browsing the public catalog.
+      try { all = await listBrowserMemes(); }
+      catch (error) { fail(error); }
     }
     await refresh();
     search.focus();

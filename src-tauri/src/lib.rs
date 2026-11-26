@@ -77,12 +77,17 @@ fn bootstrap(state: State<'_, AppState>) -> Result<Bootstrap> {
 }
 
 #[tauri::command]
-async fn search_memes(query: String, filter: String, app: AppHandle) -> Result<Vec<MemeItem>> {
+async fn search_memes(
+    query: String,
+    filter: String,
+    app: AppHandle,
+) -> Result<online::LibrarySearchResponse> {
     tauri::async_runtime::spawn_blocking(move || {
         let items = with_store(&app.state::<AppState>(), |store| {
             Ok(store.library.items.clone())
         })?;
-        library::search(&items, &query, &filter)
+        app.state::<online::OnlineState>()
+            .rank_library(&items, &query, &filter)
     })
     .await
     .map_err(|error| error.to_string())?
@@ -203,43 +208,59 @@ async fn prepare_template(id: String, app: AppHandle) -> Result<PreparedTemplate
 }
 
 #[tauri::command]
-async fn copy_composed(data_url: String, hide_after: bool, app: AppHandle) -> Result<CopyResult> {
+async fn copy_composed(
+    data_url: String,
+    template_id: String,
+    captions: Vec<String>,
+    hide_after: bool,
+    app: AppHandle,
+) -> Result<composed::CopyOutcome> {
     let copy_app = app.clone();
-    tauri::async_runtime::spawn_blocking(move || -> Result<()> {
-        let (_, image) = composed::decode(&data_url)?;
-        let image = image.to_rgba8();
+    let outcome = tauri::async_runtime::spawn_blocking(move || -> Result<composed::CopyOutcome> {
+        let template = copy_app.state::<online::OnlineState>().item(&template_id)?;
+        let composed::PreparedComposition {
+            bytes,
+            image,
+            title,
+            description,
+            tags,
+        } = composed::prepare(&data_url, &template, &captions)?;
         let state = copy_app.state::<AppState>();
-        let mut owner = state
-            .clipboard
-            .lock()
-            .map_err(|_| "Clipboard is unavailable.")?;
-        if owner.is_none() {
-            *owner = Some(
-                Clipboard::new()
-                    .map_err(|_| "Clipboard is unavailable. Use Save image instead.")?,
-            );
-        }
-        owner
-            .as_mut()
-            .ok_or("Clipboard is unavailable.")?
-            .set_image(ImageData {
-                width: image.width() as usize,
-                height: image.height() as usize,
-                bytes: Cow::Owned(image.into_raw()),
-            })
-            .map_err(|_| "Could not copy the composed image. Use Save image instead.")?;
-        Ok(())
+        // Complete durable saving before touching the clipboard. Release the
+        // library lock first so clipboard and library operations cannot deadlock.
+        let saved = with_store(&state, |store| {
+            store.save_generated_png(&bytes, title, description, tags)
+        })?;
+        let copied = (|| -> Result<()> {
+            let image = image.to_rgba8();
+            let mut owner = state
+                .clipboard
+                .lock()
+                .map_err(|_| "Clipboard is unavailable.")?;
+            if owner.is_none() {
+                *owner = Some(Clipboard::new().map_err(|_| "Clipboard is unavailable.")?);
+            }
+            owner
+                .as_mut()
+                .ok_or("Clipboard is unavailable.")?
+                .set_image(ImageData {
+                    width: image.width() as usize,
+                    height: image.height() as usize,
+                    bytes: Cow::Owned(image.into_raw()),
+                })
+                .map_err(|_| "Could not copy the composed image.")?;
+            Ok(())
+        })();
+        Ok(composed::CopyOutcome::after_copy(saved, copied))
     })
     .await
     .map_err(|e| e.to_string())??;
-    if hide_after {
+    if outcome.copied && hide_after {
         if let Some(window) = app.get_webview_window("main") {
             let _ = window.hide();
         }
     }
-    Ok(CopyResult {
-        message: "Your meme is copied. Paste the image into your conversation.".into(),
-    })
+    Ok(outcome)
 }
 
 #[tauri::command]

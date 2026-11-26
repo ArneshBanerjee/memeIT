@@ -1,6 +1,6 @@
 {
   "name": "memeit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "A small, local-first desktop picker for the perfect reaction.",
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.10.0",
+    "fake-indexeddb": "6.2.8",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   }

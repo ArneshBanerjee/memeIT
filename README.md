@@ -4,7 +4,7 @@
 
 A small desktop picker for real internet memes for **Windows, macOS, and Linux**. Press `Cmd/Ctrl + Shift + M`, describe a reaction, choose a GIF or image, and press Enter to copy it. Paste into your conversation when you're ready.
 
-MemeIT is an early **0.1.1 preview**, with a Rust application core and a lightweight TypeScript interface inside Tauri 2. It is not an Electron app. It does not read chats, monitor clipboard history, inject keystrokes, or send messages for you.
+MemeIT is an early **0.1.2 preview**, with a Rust application core and a lightweight TypeScript interface inside Tauri 2. It is not an Electron app. It does not read chats, monitor clipboard history, inject keystrokes, or send messages for you.
 
 ## Download
 
@@ -17,7 +17,7 @@ Initial builds are not notarized by Apple or signed with a Windows publisher cer
 - A resident picker with a global shortcut, system tray, and single-instance behavior.
 - A live popular-format browser backed by Imgflip and Memegen, with recognizable internet memes.
 - Optional KLIPY GIF/static-meme search and Imgflip full-catalog search with your provider key.
-- Add your own text to supported static templates with an on-device live editor, draggable text layers, and PNG copy/save.
+- Add your own text to supported static templates with an on-device live editor, draggable text layers, clipboard copying, and automatic storage in Your memes.
 - Native import of your own static PNG, JPEG, WebP, and animated GIF files into a private local library.
 - Description search combining a local sentence model with meme names, visual descriptions, slang, and typo-tolerant matching in Rust.
 - Save supported online memes to a local library, with favorites and recent reactions.
@@ -25,18 +25,18 @@ Initial builds are not notarized by Apple or signed with a Windows publisher cer
 - Native Save file fallback when a chat does not accept pasted files.
 - Keyboard navigation, editable descriptions, and a configurable shortcut.
 
-**Describe what you remember:** the desktop app combines a bundled MiniLM sentence model with exact names, descriptive metadata, word forms, and typo tolerance. Queries such as “dog cooked,” “god eye closed,” or “brown dog accepting its fate in the sunlight” find Cooked Dog. Matching runs on your device without an AI account or search API key. The model compares text descriptions; it does not recognize imported image contents automatically, so add descriptions to your own files. Search can retrieve only entries present in the selected catalog. Optional provider tabs use that provider’s search.
+**Describe what you remember:** the desktop app combines a bundled MiniLM sentence model with exact names, descriptive metadata, word forms, and typo tolerance. Queries such as “dog cooked,” “god eye closed,” or “brown dog accepting its fate in the sunlight” find Cooked Dog; “the guy looking back at other girl meme” finds Distracted Boyfriend. Matching runs on your device without an AI account or search API key. The model compares text descriptions; it does not recognize imported image contents automatically, so add descriptions to your own files. Search can retrieve only entries present in the selected catalog. Optional provider tabs use that provider’s search.
 
-The browser preview and imported local library use a lighter descriptive matcher; Popular memes in the installed desktop app includes the language model.
+The desktop app uses the local language model for Popular memes and Your memes, including descriptions and captions on your creations. The browser preview uses a lighter descriptive matcher. Imported files can be named and described with **Name & describe**; their image contents are not automatically recognized.
 
 ## Internet catalog coverage
 
 | Source | Available without a key? | Coverage and behavior |
 | --- | --- | --- |
-| Popular formats: Imgflip + Memegen | Yes | Live popular/classic formats plus a curated set of verified internet reactions, not every captioned meme variant. Feed contents and availability vary. |
+| Popular formats: Imgflip + Memegen | Yes | Live popular/classic formats plus verified internet reactions including 6–7 and contemporary slang formats, not every captioned meme variant. Feed contents and availability vary. |
 | KLIPY GIFs / memes | No | Broad live reaction search with a testing/production app key. Separate provider results retain provider order. |
 | Imgflip full catalog | No | Advertised 1M+ template catalog; requires API Premium and a bearer key. |
-| Your library | Yes | Saved supported memes and imported files, available offline. |
+| Your memes | Yes | Saved supported memes and imported files, available offline. |
 
 Use **Settings → Connect online catalogs** to enter your own key. Preview credentials remain in memory until the app quits and are sent only to the matching provider. Production onboarding and credentials are not included in this repository.
 
@@ -47,8 +47,8 @@ KLIPY currently supports **Copy link** only. Its default rules prohibit retainin
 1. Open the picker with `Cmd/Ctrl + Shift + M` or its tray/launcher entry.
 2. Describe the moment or enter a category. Use arrows to select a reaction.
 3. Choose **Add text** to caption a static template, or press Enter to copy the original.
-4. In the editor, drag captions into place, adjust styling, and choose **Copy meme**. Captions render on-device; they are not sent to a captioning API.
-5. Return to your chat and paste. If GIF-file paste is unsupported, save the file and attach it.
+4. In the editor, drag captions into place, adjust styling, and choose **Copy meme**. The finished image is copied directly to your clipboard and automatically kept in **Your memes**. There is no file-save dialog. Captions render on-device; they are not sent to a captioning API.
+5. Return to your chat and paste. Open **Your memes** later to copy any creation again. Use **Import memes** to bring your own PNG, JPEG, WebP, or animated GIF and optionally choose **Name & describe** to rename it. If GIF-file paste is unsupported, save the file and attach it.
 
 Static image clipboard formats do not preserve animation. MemeIT therefore copies GIFs as original files. The destination app decides whether it accepts file pasting. Compatibility across Discord, Slack, Telegram, WhatsApp, Messages, browsers, and Linux compositors requires individual testing; a successful build does not establish that compatibility.
 
