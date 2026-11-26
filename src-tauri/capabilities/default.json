@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-window",
+  "description": "The local MemeIT window. All media access is through validated Rust commands.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

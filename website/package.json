@@ -1,0 +1,9 @@
+{
+  "name": "memeit-website",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MemeIT's public download website",
+  "type": "commonjs",
+  "scripts": { "test": "node --test test/*.test.cjs" },
+  "engines": { "node": ">=22" }
+}

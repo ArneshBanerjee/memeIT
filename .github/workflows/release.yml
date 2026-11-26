@@ -1,0 +1,138 @@
+name: Release desktop builds
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    outputs:
+      release_id: ${{ steps.release.outputs.release_id }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Verify version tag
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, re
+          tag = os.environ['RELEASE_TAG']
+          config = json.loads(pathlib.Path('src-tauri/tauri.conf.json').read_text())
+          cargo = pathlib.Path('src-tauri/Cargo.toml').read_text()
+          version = re.search(r'^version\s*=\s*"([^"]+)"', cargo, re.M).group(1)
+          assert tag == 'v' + config['version'] == 'v' + version, 'Tag, Tauri, and Cargo versions must match'
+          PY
+      - name: Prepare a draft preview release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" --json id > /dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --verify-tag --draft --prerelease --title "MemeIT $RELEASE_TAG preview" --notes-file .github/RELEASE_NOTES.md
+          fi
+          IS_DRAFT=$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)
+          test "$IS_DRAFT" = true || { echo 'Refusing to modify an already published release.'; exit 1; }
+          RELEASE_ID=$(gh release view "$RELEASE_TAG" --json databaseId --jq .databaseId)
+          echo "release_id=$RELEASE_ID" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prepare
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            bundles: dmg
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            bundles: dmg
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundles: nsis,msi
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            bundles: appimage,deb
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
+        with:
+          targets: ${{ matrix.target }}
+          components: rustfmt
+      - uses: swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+        with:
+          workspaces: src-tauri -> target
+          key: ${{ matrix.target }}
+      - name: Install Linux libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev libxdo-dev librsvg2-dev patchelf xdg-utils
+      - run: npm ci
+      - name: Build the frontend
+        run: npm run build
+      - name: Test download metadata
+        run: npm test --prefix website
+      - name: Check Rust formatting
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
+      - name: Test Rust application
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked
+      - name: Build and upload installers to draft
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_SIGNING_IDENTITY: '-'
+        with:
+          releaseId: ${{ needs.prepare.outputs.release_id }}
+          releaseDraft: true
+          prerelease: true
+          args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+          uploadUpdaterJson: false
+
+  publish:
+    needs: [prepare, build]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Verify all targets, checksum, and publish preview
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          mkdir -p release-assets
+          gh release download "$RELEASE_TAG" --dir release-assets --pattern '*.dmg' --pattern '*.exe' --pattern '*.msi' --pattern '*.AppImage' --pattern '*.deb'
+          python3 - <<'PY'
+          import hashlib, pathlib
+          folder = pathlib.Path('release-assets')
+          files = sorted(path for path in folder.iterdir() if path.is_file())
+          names = [path.name for path in files]
+          required = [lambda n: n.endswith('_aarch64.dmg'), lambda n: n.endswith('_x64.dmg'), lambda n: n.endswith('_x64-setup.exe'), lambda n: n.endswith('.msi'), lambda n: n.endswith('.AppImage'), lambda n: n.endswith('.deb')]
+          assert all(any(check(name) for name in names) for check in required), f'Missing expected installer: {names}'
+          with pathlib.Path('SHA256SUMS.txt').open('w') as output:
+              for path in files:
+                  output.write(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n')
+          PY
+          gh release upload "$RELEASE_TAG" SHA256SUMS.txt --clobber
+          gh release edit "$RELEASE_TAG" --draft=false --prerelease --latest=false

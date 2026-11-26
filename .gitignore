@@ -1,0 +1,14 @@
+node_modules/
+dist/
+target/
+src-tauri/target/
+.vercel/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+artifacts/
+src-tauri/gen/
+src-tauri/icons/android/
+src-tauri/icons/ios/

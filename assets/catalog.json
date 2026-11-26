@@ -1,0 +1,288 @@
+[
+  {
+    "id": "surprised",
+    "title": "Wait. What?",
+    "description": "A wide-eyed little character does a double take. Shocked, surprised, stunned, disbelief, unexpected news, plot twist, cannot believe what I just heard, excuse me what, mind blown, jaw dropped.",
+    "tags": [
+      "surprised",
+      "shocked",
+      "what",
+      "unexpected",
+      "confused",
+      "disbelief",
+      "plot twist"
+    ],
+    "filename": "surprised.gif",
+    "kind": "gif"
+  },
+  {
+    "id": "awkward",
+    "title": "Acting normal",
+    "description": "A nervous character glances sideways while trying to look completely normal. Awkward silence, embarrassing moment, caught in the act, pretending nothing happened, uncomfortable small talk, sweating, social anxiety.",
+    "tags": [
+      "awkward",
+      "nervous",
+      "embarrassed",
+      "caught",
+      "silence",
+      "sweating",
+      "pretending"
+    ],
+    "filename": "awkward.gif",
+    "kind": "gif"
+  },
+  {
+    "id": "celebration",
+    "title": "We're so back",
+    "description": "An excited character throws both arms up as confetti falls. Celebration, victory, success, good news, finally fixed it, let's go, proud of you, comeback, congratulations, nailed it, winning together.",
+    "tags": [
+      "celebration",
+      "happy",
+      "success",
+      "win",
+      "congratulations",
+      "excited",
+      "comeback"
+    ],
+    "filename": "celebration.gif",
+    "kind": "gif"
+  },
+  {
+    "id": "chaos",
+    "title": "Plan A is on fire",
+    "description": "A character keeps a brave smile beside a little burning plan. Everything is going wrong, chaos, deadline panic, disaster, pretending things are under control, overwhelmed at work, this is fine, coping with a bad day.",
+    "tags": [
+      "chaos",
+      "panic",
+      "fire",
+      "disaster",
+      "overwhelmed",
+      "deadline",
+      "coping"
+    ],
+    "filename": "chaos.gif",
+    "kind": "gif"
+  },
+  {
+    "id": "judging",
+    "title": "Interesting choice",
+    "description": "A small character gives a skeptical sideways look with one raised eyebrow. Judging a questionable decision, suspicious, side eye, really, doubt, not convinced, sarcastic disagreement, questionable taste.",
+    "tags": [
+      "judging",
+      "skeptical",
+      "side eye",
+      "suspicious",
+      "doubt",
+      "sarcasm"
+    ],
+    "filename": "judging.png",
+    "kind": "png"
+  },
+  {
+    "id": "tired",
+    "title": "Battery: emotionally 1%",
+    "description": "A sleepy character slumps beside a nearly empty battery. Exhausted, tired, sleepy, drained, burnout, Monday morning, social battery empty, no energy left, need a nap, done for the day.",
+    "tags": [
+      "tired",
+      "sleepy",
+      "exhausted",
+      "burnout",
+      "monday",
+      "battery",
+      "nap"
+    ],
+    "filename": "tired.png",
+    "kind": "png"
+  },
+  {
+    "id": "thinking",
+    "title": "Let me overthink that",
+    "description": "A thoughtful character stares upward at a tiny spiral thought bubble. Overthinking a simple message, confused, calculating, puzzling over a decision, considering possibilities, deep thoughts, wait a minute, brain loading.",
+    "tags": [
+      "thinking",
+      "overthinking",
+      "confused",
+      "calculating",
+      "decision",
+      "brain",
+      "loading"
+    ],
+    "filename": "thinking.png",
+    "kind": "png"
+  },
+  {
+    "id": "nope",
+    "title": "Respectfully, nope",
+    "description": "A character raises one palm and leans away. Firm refusal, no thanks, absolutely not, setting boundaries, do not want this, hard pass, rejecting a terrible idea, politely disagreeing, not today.",
+    "tags": [
+      "no",
+      "nope",
+      "refuse",
+      "boundaries",
+      "pass",
+      "disagree",
+      "reject"
+    ],
+    "filename": "nope.png",
+    "kind": "png"
+  },
+  {
+    "id": "support",
+    "title": "You've got this",
+    "description": "A warm little character holds a bright heart. Encouragement, support, comfort, sending love, cheering a friend up, you can do it, proud of you, hope, wholesome, believing in someone, good vibes.",
+    "tags": [
+      "support",
+      "love",
+      "encouragement",
+      "wholesome",
+      "comfort",
+      "hope",
+      "heart"
+    ],
+    "filename": "support.png",
+    "kind": "png"
+  },
+  {
+    "id": "laughing",
+    "title": "I am not surviving this",
+    "description": "A laughing character bends over with tears at the corners of its eyes. Hilarious, laughing so hard, dying of laughter, lmao, lol, rofl, cannot breathe, funniest thing ever, losing it, joke.",
+    "tags": [
+      "laughing",
+      "funny",
+      "hilarious",
+      "lol",
+      "lmao",
+      "joke",
+      "tears"
+    ],
+    "filename": "laughing.png",
+    "kind": "png"
+  },
+  {
+    "id": "waiting",
+    "title": "Any second now",
+    "description": "A patient character sits beside a tiny clock. Waiting for a reply, left on read, taking forever, impatient, any updates, loading, slow response, still here, waiting for the build to finish.",
+    "tags": [
+      "waiting",
+      "impatient",
+      "reply",
+      "slow",
+      "loading",
+      "updates",
+      "read"
+    ],
+    "filename": "waiting.png",
+    "kind": "png"
+  },
+  {
+    "id": "oops",
+    "title": "Small miscalculation",
+    "description": "A sheepish character stands beside a broken little block. Oops, made a mistake, messed up, accidental disaster, forgot something important, my bad, regret, wrong chat, it was an accident.",
+    "tags": [
+      "oops",
+      "mistake",
+      "sorry",
+      "accident",
+      "regret",
+      "forgot",
+      "my bad"
+    ],
+    "filename": "oops.png",
+    "kind": "png"
+  },
+  {
+    "id": "smug",
+    "title": "Called it",
+    "description": "A pleased character smiles knowingly with folded arms. I told you so, called it, predicted exactly what happened, smug satisfaction, knew it all along, being right, obvious in hindsight.",
+    "tags": [
+      "smug",
+      "right",
+      "predicted",
+      "called it",
+      "knew it",
+      "satisfaction"
+    ],
+    "filename": "smug.png",
+    "kind": "png"
+  },
+  {
+    "id": "sad",
+    "title": "Tiny emotional damage",
+    "description": "A small character sits quietly under a tiny rain cloud. Sad, disappointed, hurt feelings, heartbroken, rejected, missing someone, unlucky, emotional damage, a little bit crushed, not okay.",
+    "tags": [
+      "sad",
+      "disappointed",
+      "hurt",
+      "heartbroken",
+      "rejected",
+      "rain",
+      "unlucky"
+    ],
+    "filename": "sad.png",
+    "kind": "png"
+  },
+  {
+    "id": "panic",
+    "title": "Brain has left the chat",
+    "description": "A startled character looks up as a tiny brain floats away. Brain freeze, cannot think, overwhelmed, confused by instructions, too much information, panic, blanking during a meeting, forgot everything.",
+    "tags": [
+      "panic",
+      "brain",
+      "confused",
+      "overwhelmed",
+      "blank",
+      "forgot",
+      "meeting"
+    ],
+    "filename": "panic.png",
+    "kind": "png"
+  },
+  {
+    "id": "popcorn",
+    "title": "Here for the plot",
+    "description": "An entertained character clutches a striped snack bucket. Watching drama unfold, gossip, tell me more, interesting story, tea, popcorn, enjoying the chaos from a safe distance, invested in the conversation.",
+    "tags": [
+      "drama",
+      "popcorn",
+      "gossip",
+      "tea",
+      "story",
+      "watching",
+      "entertained"
+    ],
+    "filename": "popcorn.png",
+    "kind": "png"
+  },
+  {
+    "id": "agree",
+    "title": "Exactly what I meant",
+    "description": "A cheerful character points up beside a bold check mark. Exactly, yes, agreed, this, correct, well said, someone finally gets it, same here, relate, that is what I have been saying.",
+    "tags": [
+      "agree",
+      "yes",
+      "exactly",
+      "correct",
+      "relatable",
+      "same",
+      "true"
+    ],
+    "filename": "agree.png",
+    "kind": "png"
+  },
+  {
+    "id": "leaving",
+    "title": "My cue to disappear",
+    "description": "A character quietly heads toward a tiny exit door. Leaving the conversation, disappearing, avoiding drama, awkward exit, bye, escaping responsibilities, backing away, I should go, not my problem.",
+    "tags": [
+      "leaving",
+      "bye",
+      "escape",
+      "exit",
+      "avoid",
+      "disappear",
+      "awkward"
+    ],
+    "filename": "leaving.png",
+    "kind": "png"
+  }
+]
